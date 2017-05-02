@@ -4,10 +4,15 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.example.jiewu.calculator.util.Calculator;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumentation test, which will execute on an Android device.
@@ -22,5 +27,16 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.example.jiewu.calculator", appContext.getPackageName());
+    }
+
+    @Test
+    public void testCalculator() {
+        Calculator calculator = new Calculator();
+        calculator.setInput("134+412x31+94÷213");
+        List<Object> list = calculator.formatInput();
+        Object[] result = list.toArray();
+        Object[] o = {134d, "+", 412d, "x", 31d, "+", 94d, "÷", 213d};
+        assertArrayEquals(result, o);
+
     }
 }
