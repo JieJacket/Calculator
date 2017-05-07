@@ -1,31 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:orientation="horizontal">
 
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/black">
-
-        <TextView
-            android:id="@+id/tv_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical|end"
-            android:minHeight="64dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textColor="@android:color/white"
-            android:textSize="28sp" />
-    </android.support.design.widget.AppBarLayout>
-
     <android.support.v7.widget.GridLayout
+        android:id="@+id/gl_keyboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:background="@android:color/black"
         app:columnCount="4"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -228,5 +213,38 @@
 
     </android.support.v7.widget.GridLayout>
 
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/gl_keyboard"
+        android:background="@android:color/black"
+        android:gravity="bottom"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
 
-</android.support.design.widget.CoordinatorLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|end"
+                android:minHeight="64dp"
+                android:textColor="@android:color/white"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tv_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|end"
+                android:minHeight="48dp"
+                android:textColor="@android:color/white"
+                android:textSize="42sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </android.support.design.widget.AppBarLayout>
+</RelativeLayout>

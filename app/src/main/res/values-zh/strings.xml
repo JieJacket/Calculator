@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">计算器</string>
+    <string name="str_error">错误</string>
+    <string name="str_error_character">位置符号: %s</string>
+</resources>

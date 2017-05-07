@@ -2,13 +2,23 @@ package com.example.jiewu.calculator;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.text.TextUtilsCompat;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.jiewu.calculator.util.Calculator;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +33,8 @@ public class CalculatorFragment extends Fragment {
     Calculator calculator;
     @BindView(R.id.tv_input)
     TextView tvInput;
+    @BindView(R.id.tv_result)
+    TextView tvResult;
 
     @Nullable
     @Override
@@ -35,8 +47,26 @@ public class CalculatorFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        calculator = new Calculator();
+        calculator = new Calculator(getContext().getApplicationContext());
         calculator.setInputTextView(tvInput);
+        tvInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (TextUtils.isEmpty(s.toString())) {
+                    tvResult.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
 
@@ -50,7 +80,7 @@ public class CalculatorFragment extends Fragment {
                 calculator.delete();
                 break;
             case R.id.iv_per:
-                calculator.append(Calculator.SPECIAL_OPERATORS[0]);
+                calculator.appendOperator(4);
                 break;
             case R.id.iv_div:
                 calculator.appendOperator(3);
@@ -98,12 +128,19 @@ public class CalculatorFragment extends Fragment {
                 calculator.appendOperand(10);
                 break;
             case R.id.iv_equal:
-                calculator.calculator();
+                Double result = this.calculator.calculator();
+                if (result != null) {
+                    tvResult.setText(DecimalFormat.getInstance(Locale.US).format(result));
+                } else {
+                    tvResult.setText(R.string.str_error);
+                }
+                tvResult.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;
         }
     }
+
 
     @Override
     public void onDestroy() {

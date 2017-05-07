@@ -1,10 +1,18 @@
 package com.example.jiewu.calculator.util;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.TextView;
 
+import com.example.jiewu.calculator.R;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by jie on 2017/5/2.
@@ -12,9 +20,23 @@ import java.util.List;
 
 public class Calculator {
 
-    public static final CharSequence[] OPERANDS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."};
-    public static final CharSequence[] OPERATORS = {"+", "-", "x", "÷"};
-    public static final CharSequence[] SPECIAL_OPERATORS = {"%"};
+    public static final String[] OPERANDS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."};
+//    public static final String[] OPERATORS = {"+", "-", "x", "÷", "%"};
+
+    public static final Operator[] OPERATORS = {
+            Operator.PLUS,
+            Operator.MINUS,
+            Operator.MULTIPLY,
+            Operator.DIVISION,
+            Operator.PERCENT,
+//            Operator.LEFT_BRACKET,
+//            Operator.RIGHT_BRACKET,
+    };
+    private final Context context;
+
+    public Calculator(@NonNull Context context) {
+        this.context = context;
+    }
 
     private TextView inputTextView;
 
@@ -22,28 +44,18 @@ public class Calculator {
         this.inputTextView = inputTextView;
     }
 
-    private static final int MAX_INTEGER_LENGTH = 10;//操作数最长位数
-    private static final int MAX_DECIMAL_LENGTH = 2;//操作数小数位最长长度
+
+    private static final Double MAX_NUMBER = 9999999999.99d;//操作数最大值
+
+    private static final int MAX_DECIMAL_LENGTH = 2;//小数位最长长度
 
     private StringBuffer input = new StringBuffer();
 
-    public void append(CharSequence cs) {
-        if (input.length() == 0 && !isOperator(cs)) {
-            input.append(cs);
-        } else if (isOperator(cs)) {
-            if (!TextUtils.isEmpty(getTopOperator())) {
-                delete();
-            }
-            input.append(cs);
-        } else if (isValidOperand(getTopOperand(), cs)) {
-            if (getTopOperand().equals(OPERANDS[0]) && "0".equals(cs)) {
-                return;
-            }
-            input.append(cs);
-        }
-        if (SPECIAL_OPERATORS[0].equals(cs) && !TextUtils.isEmpty(getTopOperand())) {
-            input.append(cs);
-        }
+    public void append(String s) {
+
+        input.append(s);
+        //TODO check valid for input
+
         setInputText();
     }
 
@@ -68,7 +80,7 @@ public class Calculator {
         if (index < 0 || index > OPERATORS.length - 1) {
             return;
         }
-        append(OPERATORS[index]);
+        append(OPERATORS[index].getSymbol());
     }
 
     /**
@@ -82,6 +94,12 @@ public class Calculator {
         setInputText();
     }
 
+    private void setInputText() {
+        if (inputTextView != null) {
+            inputTextView.setText(input.toString());
+        }
+    }
+
     /**
      * 清空
      */
@@ -91,129 +109,97 @@ public class Calculator {
     }
 
 
-    /**
-     * 判断字符是不是操作符
-     *
-     * @param op
-     * @return
-     */
-    private boolean isOperator(CharSequence op) {
-        for (CharSequence c : OPERATORS) {
-            if (c.equals(op)) {
-                return true;
-            }
+    public Double calculator() {
+        try {
+            List<Object> objects = handleInput();
+            return transferAndCalculator(objects);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return null;
         }
-        return false;
     }
 
-
-    private CharSequence getTopOperand() {
-        String s = input.toString();
-        StringBuilder result = new StringBuilder();
-
-        int i = s.length() - 1;
-        while (i >= 0) {
-            char c = s.charAt(i);
-            if (!Character.isDigit(c) && !OPERANDS[10].equals(Character.toString(c))) {
-                break;
-            }
-            result.insert(0, c);
-            i--;
+    private List<Object> handleInput() throws RuntimeException {
+        if (input.length() == 0) {
+            return null;
         }
-
-        return result.toString();
-    }
-
-    private CharSequence getTopOperator() {
-        CharSequence cs = null;
-        int length = input.length();
-        if (length > 0) {
-            char c = input.charAt(length - 1);
-            if (isOperator(Character.toString(c))) {
-                cs = Character.toString(c);
-            }
-        }
-        return cs;
-    }
-
-    /**
-     * 判断当前插入操作是否有效
-     *
-     * @param operand
-     * @param cs
-     * @return
-     */
-    private boolean isValidOperand(CharSequence operand, CharSequence cs) {
-        int i = 0, length = operand.length();
-        if (length == 0) {
-            return true;
-        }
-        while (i < length) {
-            char c = operand.charAt(i);
-            if (OPERANDS[10].equals(Character.toString(c))) {
-                break;
+        List<Object> result = new LinkedList<>();
+        char[] chars = input.toString().toCharArray();
+        int i = 0;
+        StringBuilder operand = new StringBuilder();
+        while (i < chars.length) {
+            char c = chars[i];
+            if (Character.isDigit(c) || '.' == c) {
+                operand.append(c);
+            } else if (OperatorUtils.isOperator(Character.toString(c))) {
+                Double d = Double.parseDouble(operand.toString());
+                result.add(d);
+                result.add(OperatorUtils.create(Character.toString(c)));
+                operand = new StringBuilder();
+            } else {
+                throw new RuntimeException(context.getString(R.string.str_error_character, Character.toString(c)));
             }
             i++;
         }
-        //有小数点
-        if ((i > 0 && i < length) || OPERANDS[10].equals(Character.toString(operand.charAt(0)))) {
-            if (OPERANDS[10].equals(cs))
-                return false;
-            if (length - 1 - i >= MAX_DECIMAL_LENGTH) {
-                return false;
+        if (operand.length() > 0) {
+            Double d = Double.parseDouble(operand.toString());
+            result.add(d);
+        }
+        return result;
+    }
+
+    private Double transferAndCalculator(List<Object> objects) {
+        if (objects == null || objects.isEmpty()) {
+            return null;
+        }
+        Stack<Operator> operators = new Stack<>();
+        Stack<Double> operands = new Stack<>();
+        for (Object obj : objects) {
+            if (obj instanceof Double) {
+                operands.push((Double) obj);
+            } else if (obj instanceof Operator) {
+                Operator operator = (Operator) obj;
+                operation(operators, operands, operator);
             }
-        } else if (length >= MAX_INTEGER_LENGTH) {
-            return false;
         }
 
-        return true;
+        return calculator(operators, operands);
     }
 
-    private void setInputText() {
-        if (inputTextView != null) {
-            inputTextView.setText(input.toString());
+    private void operation(Stack<Operator> operators, Stack<Double> operands, Operator operator) {
+        if (!operators.isEmpty() && operator.compareTo(operators.peek()) <= 0) {
+            Operator top = operators.pop();
+            if (OperatorUtils.isUnaryOperator(top)) {
+                Double result = OperatorUtils.calculator(top, operands.pop(), null);
+                operands.push(result);
+            } else if (OperatorUtils.isBinaryOperator(top)) {
+                Double result = OperatorUtils.calculator(top, operands.pop(), operands.pop());
+                operands.push(result);
+            }
         }
+        operators.push(operator);
     }
 
-    /**
-     * 获取当前输入值
-     *
-     * @return
-     */
-    public String getInput() {
-        return input.toString();
-    }
-
-    public void setInput(CharSequence cs) {
-        input.append(cs);
-    }
-
-    public Double calculator() {
-        formatInput();
-        return 0d;
-    }
-
-    public List<Object> formatInput() {
-        CharSequence cs = input.toString();
-        StringBuilder operand = new StringBuilder();
-        List<Object> format = new LinkedList<>();
-        int startPos = 0;
-        while (startPos < cs.length()) {
-            char start = cs.charAt(startPos);
-            if (isOperator(Character.toString(start))) {
-                if (!TextUtils.isEmpty(operand)) {
-                    format.add(Double.parseDouble(operand.toString()));
-                    format.add(Character.toString(start));
-                    operand = new StringBuilder();
-                }
+    private Double calculator(Stack<Operator> operators, Stack<Double> operands) {
+        if (operands.isEmpty() || operators.isEmpty()) {
+            return null;
+        }
+        while (!operators.isEmpty()) {
+            if (OperatorUtils.isUnaryOperator(operators.peek())) {
+                Double result = OperatorUtils.calculator(operators.pop(), operands.pop(), null);
+                operands.push(result);
+            } else if (OperatorUtils.isBinaryOperator(operators.peek())) {
+                Double result = OperatorUtils.calculator(operators.pop(), operands.pop(), operands.pop());
+                operands.push(result);
             } else {
-                operand.append(start);
+                throw new RuntimeException(context.getString(R.string.str_error_character, operators.peek().getSymbol()));
             }
-            startPos++;
         }
-        if (!TextUtils.isEmpty(operand.toString())) {
-            format.add(Double.parseDouble(operand.toString()));
+
+        if (!operands.isEmpty() && operands.size() == 1) {
+            return operands.pop();
         }
-        return format;
+        return null;
     }
+
 }
