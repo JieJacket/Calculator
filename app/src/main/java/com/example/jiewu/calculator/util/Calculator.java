@@ -2,14 +2,10 @@ package com.example.jiewu.calculator.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.example.jiewu.calculator.R;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -132,9 +128,11 @@ public class Calculator {
             if (Character.isDigit(c) || '.' == c) {
                 operand.append(c);
             } else if (OperatorUtils.isOperator(Character.toString(c))) {
-                Double d = Double.parseDouble(operand.toString());
-                result.add(d);
-                result.add(OperatorUtils.create(Character.toString(c)));
+                if (operand.length() > 0) {
+                    Double d = Double.parseDouble(operand.toString());
+                    result.add(d);
+                    result.add(OperatorUtils.create(Character.toString(c)));
+                }
                 operand = new StringBuilder();
             } else {
                 throw new RuntimeException(context.getString(R.string.str_error_character, Character.toString(c)));
