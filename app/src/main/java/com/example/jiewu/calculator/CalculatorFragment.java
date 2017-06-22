@@ -2,9 +2,7 @@ package com.example.jiewu.calculator;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.text.TextUtilsCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -13,11 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.jiewu.calculator.util.Calculator;
+import com.jekyll.wu.widget.calculator.util.Calculator;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -31,6 +27,7 @@ import butterknife.OnClick;
 public class CalculatorFragment extends Fragment {
 
     Calculator calculator;
+
     @BindView(R.id.tv_input)
     TextView tvInput;
     @BindView(R.id.tv_result)

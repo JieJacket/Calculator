@@ -1,10 +1,11 @@
 package com.example.jiewu.calculator;
 
-import com.example.jiewu.calculator.util.Calculator;
+import net.dongliu.apk.parser.ApkFile;
+import net.dongliu.apk.parser.bean.ApkMeta;
 
 import org.junit.Test;
 
-import java.util.List;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,4 +20,14 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
 
+    @Test
+    public void testParserApk() throws IOException {
+        String path = System.getProperty("user.dir") + "/app/src/test/java/com/example/jiewu/calculator//";
+
+        String apkPath = path + "2017-05-10_smartpos_v1.0.0_20170510_debug.apk";
+
+        ApkFile file = new ApkFile(apkPath);
+        ApkMeta apkMeta = file.getApkMeta();
+        System.out.println(apkMeta.toString());
+    }
 }
