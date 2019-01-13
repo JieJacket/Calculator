@@ -1,4 +1,4 @@
-package com.jie.calculator.calculator.util.network;
+package com.jie.calculator.calculator.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

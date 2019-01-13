@@ -2,12 +2,27 @@ package com.jie.calculator.calculator;
 
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.jie.calculator.calculator.model.TaxPoint;
+import com.jie.calculator.calculator.model.TaxStandard;
+
+import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,9 +30,63 @@ public class MainActivity extends AppCompatActivity {
         setStatusBar();
         setContentView(R.layout.activity_main);
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, new TaxFragment(), "TAX")
-                .commitAllowingStateLoss();
+
+//        getSupportFragmentManager().beginTransaction()
+//                .add(R.id.fragment_container, new TaxFragment(), "TAX")
+//                .commitAllowingStateLoss();
+        findViewById(R.id.test).setOnClickListener(v -> {
+            CTApplication.getRepository().getStandard(false)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<TaxStandard>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(List<TaxStandard> taxStandards) {
+                            Toast.makeText(getApplicationContext(), "count " + taxStandards.size(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Toast.makeText(getApplicationContext(), "error ", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        });
+        findViewById(R.id.test1).setOnClickListener(v -> {
+            CTApplication.getRepository().getTaxPoint("上海",true)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<TaxPoint.IFBean>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(TaxPoint.IFBean ifBean) {
+                            Toast.makeText(getApplicationContext(), new Gson().toJson(ifBean), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Toast.makeText(getApplicationContext(), "error ", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+        });
+
     }
 
 
