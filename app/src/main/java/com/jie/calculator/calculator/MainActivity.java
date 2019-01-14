@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-//        getSupportFragmentManager().beginTransaction()
-//                .add(R.id.fragment_container, new TaxFragment(), "TAX")
-//                .commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, new LocationFragment(), "TAX")
+                .commitAllowingStateLoss();
         findViewById(R.id.test).setOnClickListener(v -> {
             CTApplication.getRepository().getStandard(false)
                     .subscribeOn(Schedulers.io())
