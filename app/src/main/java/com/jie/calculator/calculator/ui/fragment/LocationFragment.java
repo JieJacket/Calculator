@@ -15,11 +15,13 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
+import com.jie.calculator.calculator.adapter.RecycleViewDivider;
 import com.jie.calculator.calculator.model.BusDelegateEvent;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.LocationRightLabel;
 import com.jie.calculator.calculator.model.LocationModel;
 import com.jie.calculator.calculator.model.TaxStandard;
+import com.jie.calculator.calculator.ui.MainActivity;
 import com.jie.calculator.calculator.util.ListUtils;
 import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.SystemUtil;
@@ -61,6 +63,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
         initListener();
         initLocation();
         setDefaultSelection();
+        updateActionBar();
     }
 
     private void setDefaultSelection() {
@@ -152,7 +155,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                     @Override
                     protected List<Pair<Integer, Integer>> bindItemTypes() {
                         List<Pair<Integer, Integer>> list = new ArrayList<>();
-                        list.add(Pair.create(LocationModel.HEADER, R.layout.location_label));
+                        list.add(Pair.create(LocationModel.HEADER, R.layout.location_label_header));
                         list.add(Pair.create(LocationModel.LABEL, R.layout.location_label));
                         return list;
                     }
@@ -162,6 +165,10 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                     rvLocation.setAdapter(adapter);
                     rvLocation.setLayoutManager(locationLayoutManager);
                     rvLocation.addOnScrollListener(locationScrollListener);
+                    RecycleViewDivider divider = new RecycleViewDivider(getContext(), LinearLayoutManager.VERTICAL,
+                            SystemUtil.dp2px(getContext(), 1), android.R.color.darker_gray);
+                    rvLocation.addItemDecoration(divider);
+
                     adapter.setOnItemChildClickListener(LocationFragment.this);
                 }, Throwable::printStackTrace));
 
@@ -248,6 +255,9 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
             IModel item = labelAdapter.getItem(position);
             if (item instanceof LocationRightLabel) {
                 gotoLocationByLabel(((LocationRightLabel) item).getLabel());
+                disposables.add(Observable.just(position)
+                        .compose(setLabelSelection())
+                        .subscribe());
             }
         } else if (adapter == locationAdapter) {
             IModel item = locationAdapter.getItem(position);
@@ -261,6 +271,14 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                 event.standard = lm.getStandard();
                 RxBus.getIns().post(event);
             }
+        }
+    }
+
+
+    private void updateActionBar() {
+        if (getActivity() instanceof MainActivity) {
+
+            ((MainActivity) getActivity()).updateActionBar( R.string.str_location_label, true);
         }
     }
 }

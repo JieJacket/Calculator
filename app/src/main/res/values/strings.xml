@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Calculator</string>
+    <string name="app_name">薪资计算器</string>
     <string name="str_personal_tax">个税</string>
     <string name="str_mortgage">房贷</string>
     <string name="str_pre_tax_amount_tag">税前收入(元)</string>
@@ -23,4 +23,7 @@
     <string name="str_personal_tax_label">个人所得税</string>
     <string name="str_insurance_sum_label">五险一金总计</string>
     <string name="str_cny">%s元</string>
+    <string name="month_list">月薪清单</string>
+    <string name="year_list">年终奖清单</string>
+    <string name="str_location_label">所在城市</string>
 </resources>

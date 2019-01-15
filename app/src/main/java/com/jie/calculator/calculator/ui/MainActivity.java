@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -27,11 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStatusBar();
         setContentView(R.layout.activity_main);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         disposables.add(RxBus.getIns().toObservable(BusDelegateEvent.class)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -46,13 +55,13 @@ public class MainActivity extends AppCompatActivity {
                                 .fragment(CalculationFragment.newInstance(event))
                                 .addToBackStack()
                                 .replace();
-                    }
-                    else if (event.event == BusDelegateEvent.LOCATION){
+                    } else if (event.event == BusDelegateEvent.LOCATION) {
                         onBackPressed();
                         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_main);
-                        if (fragment instanceof TaxFragment){
+                        if (fragment instanceof TaxFragment) {
                             TaxFragment taxFragment = (TaxFragment) fragment;
                             taxFragment.update(event.standard);
+                            updateActionBar(getString(R.string.app_name), false);
                         }
                     }
                 }));
@@ -95,5 +104,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         disposables.clear();
+    }
+
+    public void updateActionBar(String title, boolean showLeftArrow) {
+        if (getSupportActionBar() == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(title)) {
+            getSupportActionBar().setTitle(title);
+        }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(showLeftArrow);
+    }
+    public void updateActionBar(@StringRes int title, boolean showLeftArrow) {
+        updateActionBar(getString(title),showLeftArrow);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (getSupportFragmentManager().getFragments().size() <= 1) {
+            updateActionBar(getString(R.string.app_name), false);
+        }
     }
 }

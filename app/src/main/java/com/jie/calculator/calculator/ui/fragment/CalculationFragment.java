@@ -20,6 +20,7 @@ import com.jie.calculator.calculator.model.Insurance;
 import com.jie.calculator.calculator.model.InsuranceBean;
 import com.jie.calculator.calculator.model.TaxItem;
 import com.jie.calculator.calculator.model.TaxStandard;
+import com.jie.calculator.calculator.ui.MainActivity;
 import com.jie.calculator.calculator.util.Calculator;
 
 import java.text.NumberFormat;
@@ -65,7 +66,7 @@ public class CalculationFragment extends AbsFragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             BusDelegateEvent event = (BusDelegateEvent) bundle.getSerializable(EVENT);
-            if (event == null){
+            if (event == null) {
                 throw new RuntimeException("Arguments is null");
             }
             salary = event.salary;
@@ -92,6 +93,7 @@ public class CalculationFragment extends AbsFragment {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         bindData();
+        updateActionBar();
     }
 
     private void initView(View view) {
@@ -104,7 +106,7 @@ public class CalculationFragment extends AbsFragment {
 
     private void bindData() {
         NumberFormat format = NumberFormat.getInstance();
-        if (type == BusDelegateEvent.CALCULATION_MONTH){
+        if (type == BusDelegateEvent.CALCULATION_MONTH) {
             calcMonthTax();
             tvBeforeTax.setText(getString(R.string.str_cny, format.format(salary)));
             tvAfterTax.setText(getString(R.string.str_cny, format.format(salary - insurance - personalTax)));
@@ -129,7 +131,7 @@ public class CalculationFragment extends AbsFragment {
                         rvInsurance.setAdapter(adapter);
                     }));
 
-        } else if (type == BusDelegateEvent.CALCULATION_YEAR){
+        } else if (type == BusDelegateEvent.CALCULATION_YEAR) {
             personalTax = Calculator.calcYearTax(salary);
             tvBeforeTax.setText(getString(R.string.str_cny, format.format(salary)));
             tvAfterTax.setText(getString(R.string.str_cny, format.format(salary - insurance - personalTax)));
@@ -186,5 +188,13 @@ public class CalculationFragment extends AbsFragment {
         personalTax = Calculator.calcPersonalTax(salary, insurance);
     }
 
+
+    private void updateActionBar() {
+        if (getActivity() instanceof MainActivity) {
+
+            ((MainActivity) getActivity()).updateActionBar(type == BusDelegateEvent.CALCULATION_MONTH ?
+                    R.string.month_list : R.string.year_list, true);
+        }
+    }
 
 }

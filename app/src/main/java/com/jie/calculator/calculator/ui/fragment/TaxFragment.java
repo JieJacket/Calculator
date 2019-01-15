@@ -25,6 +25,7 @@ import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.InsuranceBean;
 import com.jie.calculator.calculator.model.TaxItem;
 import com.jie.calculator.calculator.model.TaxStandard;
+import com.jie.calculator.calculator.ui.MainActivity;
 import com.jie.calculator.calculator.util.CommonConstants;
 import com.jie.calculator.calculator.util.FragmentsManager;
 import com.jie.calculator.calculator.util.RxBus;
@@ -80,26 +81,29 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
         initRadio(view);
         initCalculation(view);
         initInsuranceList(view);
-        initData(city);
+        initData(city, true);
         initLocation(view);
     }
 
     private void initLocation(View view) {
-        view.findViewById(R.id.rl_location).setOnClickListener(v -> FragmentsManager.build()
-                .fragmentManager(getFragmentManager())
-                .fragment(new LocationFragment())
-                .containerId(R.id.fragment_container)
-                .addToBackStack()
-                .replace());
+        view.findViewById(R.id.rl_location).setOnClickListener(v -> {
+                    FragmentsManager.build()
+                            .fragmentManager(getFragmentManager())
+                            .fragment(new LocationFragment())
+                            .containerId(R.id.fragment_container)
+                            .addToBackStack()
+                            .replace();
+                }
+        );
     }
 
-    private void initData(String city) {
+    private void initData(String city, boolean isClicked) {
         disposables.add(CTApplication.getRepository().getTaxPoint(city, false)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(p -> {
                     data = p.second;
-                    collapse();
+                    collapse(isClicked);
                 }, Throwable::printStackTrace));
         disposables.add(CTApplication.getRepository().getStandard(city, false)
                 .subscribeOn(Schedulers.io())
@@ -161,7 +165,7 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
         adapter.addHeaderView(headerView);
 
         ivInsurance = headerView.findViewById(R.id.iv_insurance);
-        headerView.findViewById(R.id.rl_insurance).setOnClickListener(v -> collapse());
+        headerView.findViewById(R.id.rl_insurance).setOnClickListener(v -> collapse(true));
     }
 
     @Override
@@ -175,8 +179,8 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
         disposables.add(disposable);
     }
 
-    private void collapse() {
-        isHidden = !isHidden;
+    private void collapse(boolean isClicked) {
+        isHidden = isClicked != isHidden;
         ivInsurance.setImageResource(isHidden ? R.drawable.ic_arrow_down : R.drawable.ic_arrow_up);
         adapter.update(isHidden ? new ArrayList<>() : new ArrayList<>(data));
     }
@@ -216,7 +220,7 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
         if (standard == null) {
             return;
         }
-        initData(standard.getName());
+        initData(standard.getName(), false);
         tvCity.setText(standard.getName());
     }
 }

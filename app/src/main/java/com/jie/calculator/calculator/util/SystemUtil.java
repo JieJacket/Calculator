@@ -2,6 +2,7 @@ package com.jie.calculator.calculator.util;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 public class SystemUtil {
@@ -31,5 +32,9 @@ public class SystemUtil {
             e.printStackTrace();
         }
         return statusHeight;
+    }
+
+    public static int dp2px(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 }
