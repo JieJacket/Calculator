@@ -1,4 +1,4 @@
-package com.jie.calculator.calculator;
+package com.jie.calculator.calculator.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +18,7 @@ import io.reactivex.disposables.CompositeDisposable;
 public abstract class AbsFragment extends Fragment {
 
     CompositeDisposable disposables = new CompositeDisposable();
+    protected final String TAG = getClass().getSimpleName();
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

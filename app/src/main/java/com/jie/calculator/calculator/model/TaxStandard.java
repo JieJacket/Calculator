@@ -2,12 +2,14 @@ package com.jie.calculator.calculator.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created on 2019/1/13.
  *
  * @author Jie.Wu
  */
-public class TaxStandard {
+public class TaxStandard implements Serializable {
 
     @SerializedName("city")
     private String city;

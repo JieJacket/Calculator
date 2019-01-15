@@ -6,6 +6,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jie.calculator.calculator.R;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Locale;
  *
  * @author Jie.Wu
  */
-public class TaxItem implements IModel {
+public class TaxItem implements IModel, Serializable {
     @StringRes
     private int titleRes;
     private double percent;
@@ -46,7 +47,7 @@ public class TaxItem implements IModel {
         TextView tvLabel = holder.getView(R.id.tv_insurance_label);
         TextView tvPercent = holder.getView(R.id.tv_insurance_percent);
         tvLabel.setText(titleRes);
-        tvPercent.setText(String.format(Locale.getDefault(), "%.1f%%", percent * 100));
+        tvPercent.setText(String.format(Locale.getDefault(), "%.1f%%", percent));
 
     }
 

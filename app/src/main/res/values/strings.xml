@@ -18,4 +18,9 @@
     <string name="str_unemployment_insurance">失业</string>
     <string name="str_work_injury_insurance">工伤</string>
     <string name="str_maternity_insurance">生育</string>
+    <string name="str_after_tax_label">到手所得</string>
+    <string name="str_before_tax_label">税前收入</string>
+    <string name="str_personal_tax_label">个人所得税</string>
+    <string name="str_insurance_sum_label">五险一金总计</string>
+    <string name="str_cny">%s元</string>
 </resources>

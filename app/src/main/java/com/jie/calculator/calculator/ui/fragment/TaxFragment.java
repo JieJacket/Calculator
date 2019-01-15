@@ -1,4 +1,4 @@
-package com.jie.calculator.calculator;
+package com.jie.calculator.calculator.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,18 +17,26 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jie.calculator.calculator.CTApplication;
+import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
+import com.jie.calculator.calculator.model.BusDelegateEvent;
 import com.jie.calculator.calculator.model.IModel;
+import com.jie.calculator.calculator.model.InsuranceBean;
 import com.jie.calculator.calculator.model.TaxItem;
-import com.jie.calculator.calculator.util.Calculator;
+import com.jie.calculator.calculator.model.TaxStandard;
 import com.jie.calculator.calculator.util.CommonConstants;
+import com.jie.calculator.calculator.util.FragmentsManager;
+import com.jie.calculator.calculator.util.RxBus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created on 2019/1/3.
@@ -48,6 +56,18 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
 
     private boolean isHidden = false;
 
+    private String city = CommonConstants.DEFAULT_CITY;
+    private List<IModel> data;
+    private TaxStandard standard;
+    private TextView tvCity;
+    private ViewGroup llMonthSalary;
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -60,26 +80,58 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
         initRadio(view);
         initCalculation(view);
         initInsuranceList(view);
+        initData(city);
+        initLocation(view);
+    }
+
+    private void initLocation(View view) {
+        view.findViewById(R.id.rl_location).setOnClickListener(v -> FragmentsManager.build()
+                .fragmentManager(getFragmentManager())
+                .fragment(new LocationFragment())
+                .containerId(R.id.fragment_container)
+                .addToBackStack()
+                .replace());
+    }
+
+    private void initData(String city) {
+        disposables.add(CTApplication.getRepository().getTaxPoint(city, false)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(p -> {
+                    data = p.second;
+                    collapse();
+                }, Throwable::printStackTrace));
+        disposables.add(CTApplication.getRepository().getStandard(city, false)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> standard = s, Throwable::printStackTrace)
+        );
 
     }
+
 
     private void initCalculation(View view) {
         TextView btnCalculation = view.findViewById(R.id.btn_calculation);
         etAmount = view.findViewById(R.id.et_amount);
+        tvCity = view.findViewById(R.id.tv_city);
         btnCalculation.setOnClickListener(v -> calculation());
     }
 
     private void initRadio(View view) {
         RadioGroup rg = view.findViewById(R.id.rg_selection);
+        llMonthSalary = view.findViewById(R.id.ll_month_salary);
         rg.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
-                case R.id.ctv_mortgage:
+                case R.id.rb_monthly_salary:
+                    checkedPos = 0;
+                    llMonthSalary.setVisibility(View.VISIBLE);
+                    break;
+                case R.id.rb_year_end_rewards:
+                    llMonthSalary.setVisibility(View.GONE);
                     checkedPos = 1;
                     break;
-                case R.id.ctv_personal_tax:
-                    break;
                 default:
-                    checkedPos = 0;
+                    checkedPos = -1;
                     break;
             }
         });
@@ -110,7 +162,6 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
 
         ivInsurance = headerView.findViewById(R.id.iv_insurance);
         headerView.findViewById(R.id.rl_insurance).setOnClickListener(v -> collapse());
-        collapse();
     }
 
     @Override
@@ -127,28 +178,45 @@ public class TaxFragment extends AbsFragment implements View.OnClickListener {
     private void collapse() {
         isHidden = !isHidden;
         ivInsurance.setImageResource(isHidden ? R.drawable.ic_arrow_down : R.drawable.ic_arrow_up);
-        adapter.update(isHidden ? new ArrayList<>() : new ArrayList<>(CommonConstants.items));
+        adapter.update(isHidden ? new ArrayList<>() : new ArrayList<>(data));
     }
 
     private void calculation() {
-        try {
-            String amount = etAmount.getText().toString();
-            if (!TextUtils.isEmpty(amount)) {
-                double salary = Double.parseDouble(amount);
-                List<IModel> data = adapter.getData();
-                double insurance = 0;
-                for (IModel model : data) {
-                    if (model instanceof TaxItem) {
-                        TaxItem item = (TaxItem) model;
-                        insurance += Calculator.calcInsurance(salary, item.getPercent());
-                    }
-                }
-                double personalTax = Calculator.calcPersonalTax(salary, insurance);
-                Toast.makeText(getContext(), String.format(Locale.getDefault(), "%.2f，%.2f", insurance, personalTax), Toast.LENGTH_SHORT).show();
-            }
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "输入金额异常", Toast.LENGTH_SHORT).show();
+        String amount = etAmount.getText().toString();
+        if (TextUtils.isEmpty(amount)) {
+            Toast.makeText(getContext(), "初始化数据异常", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (checkedPos == 0) {
+            disposables.add(Observable.just(standard == null || standard.getBase() == null || data == null || data.isEmpty())
+                    .filter(b -> !b)
+                    .flatMap(d -> Observable.fromIterable(data))
+                    .filter(d -> d instanceof InsuranceBean)
+                    .map(d -> (InsuranceBean) d)
+                    .toList()
+                    .subscribe(list -> {
+                        BusDelegateEvent event = new BusDelegateEvent();
+                        event.event = BusDelegateEvent.CALCULATION_MONTH;
+                        event.salary = Double.parseDouble(amount);
+                        event.data = new ArrayList<>(list);
+                        event.standard = standard;
+                        etAmount.clearFocus();
+                        RxBus.getIns().postStickyEvent(event);
+                    }, Throwable::printStackTrace));
+        } else {
+            BusDelegateEvent event = new BusDelegateEvent();
+            event.event = BusDelegateEvent.CALCULATION_YEAR;
+            event.salary = Double.parseDouble(amount);
+            etAmount.clearFocus();
+            RxBus.getIns().postStickyEvent(event);
         }
     }
 
+    public void update(TaxStandard standard) {
+        if (standard == null) {
+            return;
+        }
+        initData(standard.getName());
+        tvCity.setText(standard.getName());
+    }
 }

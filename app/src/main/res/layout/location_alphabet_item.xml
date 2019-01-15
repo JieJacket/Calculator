@@ -3,4 +3,5 @@
     android:id="@+id/tv_label"
     android:layout_width="32dp"
     android:layout_height="wrap_content"
+    android:textColor="@color/alphabet_color"
     android:gravity="center" />

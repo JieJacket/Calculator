@@ -32,20 +32,20 @@ public class TaxPoint {
          * i : 0
          */
 
-        private int f;
+        private double f;
         private double u;
-        private int e;
-        private int b;
+        private double e;
+        private double b;
         private String s;
         private String n;
-        private int m;
-        private int i;
+        private double m;
+        private double i;
 
-        public int getF() {
+        public double getF() {
             return f;
         }
 
-        public void setF(int f) {
+        public void setF(double f) {
             this.f = f;
         }
 
@@ -57,19 +57,19 @@ public class TaxPoint {
             this.u = u;
         }
 
-        public int getE() {
+        public double getE() {
             return e;
         }
 
-        public void setE(int e) {
+        public void setE(double e) {
             this.e = e;
         }
 
-        public int getB() {
+        public double getB() {
             return b;
         }
 
-        public void setB(int b) {
+        public void setB(double b) {
             this.b = b;
         }
 
@@ -89,19 +89,19 @@ public class TaxPoint {
             this.n = n;
         }
 
-        public int getM() {
+        public double getM() {
             return m;
         }
 
-        public void setM(int m) {
+        public void setM(double m) {
             this.m = m;
         }
 
-        public int getI() {
+        public double getI() {
             return i;
         }
 
-        public void setI(int i) {
+        public void setI(double i) {
             this.i = i;
         }
     }

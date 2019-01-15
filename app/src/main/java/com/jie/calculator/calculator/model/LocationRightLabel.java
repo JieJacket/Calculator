@@ -7,15 +7,21 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jie.calculator.calculator.R;
 
-public class LocationLabelModel implements IModel {
-    public static final int LABEL = 125;
+public class LocationRightLabel implements IModel {
 
     private String label;
     private int viewHeight;
-
+    private boolean isSelected;
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public void setViewHeight(int viewHeight) {
@@ -30,10 +36,13 @@ public class LocationLabelModel implements IModel {
         tv.setLayoutParams(params);
         tv.setText(label);
         tv.setGravity(Gravity.CENTER);
+        tv.setSelected(isSelected);
+
+        holder.addOnClickListener(R.id.tv_label);
     }
 
     @Override
     public int getItemType() {
-        return LABEL;
+        return Type.Location_LABEL.value;
     }
 }

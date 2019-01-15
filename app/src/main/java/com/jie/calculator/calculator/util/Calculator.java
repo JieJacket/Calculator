@@ -1,5 +1,7 @@
 package com.jie.calculator.calculator.util;
 
+import android.util.Pair;
+
 /**
  * Created on 2019/1/4.
  *
@@ -32,26 +34,41 @@ public class Calculator {
      */
     public static double calcPersonalTax(double salary, double exemption) {
         salary = salary - exemption - MARKING_POINT;
-        double tax;
-        if (salary > MONTHLY_POINT6) {
-            tax = salary * 0.45f - QP6;
-        } else if (salary > MONTHLY_POINT5) {
-            tax = salary * 0.35f - QP5;
-        } else if (salary > MONTHLY_POINT4) {
-            tax = salary * 0.30f - QP4;
-        } else if (salary > MONTHLY_POINT3) {
-            tax = salary * 0.25f - QP3;
-        } else if (salary > MONTHLY_POINT2) {
-            tax = salary * 0.20f - QP2;
-        } else if (salary > MONTHLY_POINT1) {
-            tax = salary * 0.10f - QP1;
-        } else {
-            tax = salary * 0.03f;
-        }
-        return tax;
+        Pair<Double, Double> pair = calc(salary);
+        return salary * pair.first - pair.second;
     }
 
-    public static double calcInsurance(double salary, double percent) {
-        return salary * percent;
+
+    public static double calcYearTax(double salarySum) {
+        double salary = salarySum / 12;
+        Pair<Double, Double> pair = calc(salary);
+        return salarySum * pair.first - pair.second;
+    }
+
+    private static Pair<Double, Double> calc(double salary) {
+        double taxPoint, qp;
+        if (salary > MONTHLY_POINT6) {
+            taxPoint = 0.45f;
+            qp = QP6;
+        } else if (salary > MONTHLY_POINT5) {
+            taxPoint = 0.35f;
+            qp = QP5;
+        } else if (salary > MONTHLY_POINT4) {
+            taxPoint = 0.30f;
+            qp = QP4;
+        } else if (salary > MONTHLY_POINT3) {
+            taxPoint = 0.25f;
+            qp = QP3;
+        } else if (salary > MONTHLY_POINT2) {
+            taxPoint = 0.20f;
+            qp = QP2;
+        } else if (salary > MONTHLY_POINT1) {
+            taxPoint = 0.10f;
+            qp = QP1;
+        } else {
+            taxPoint = 0.03f;
+            qp = 0;
+        }
+        return Pair.create(taxPoint, qp);
     }
 }

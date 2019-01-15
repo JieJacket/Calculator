@@ -42,6 +42,8 @@ public class FragmentsManager {
 
         private Fragment fragment;
 
+        private boolean addToBackStack;
+
 
         public Builder fragment(Fragment fragment) {
             this.fragment = fragment;
@@ -67,6 +69,11 @@ public class FragmentsManager {
         public Builder withAnimation(@AnimRes int enter, @AnimRes int exit) {
             this.enter = enter;
             this.exit = exit;
+            return this;
+        }
+
+        public Builder addToBackStack(){
+            this.addToBackStack = true;
             return this;
         }
 
@@ -133,6 +140,9 @@ public class FragmentsManager {
         if (builder.exit != 0 && builder.enter != 0) {
             ft.setCustomAnimations(builder.enter, builder.exit, builder.enter, builder.exit);
         }
+        if (builder.addToBackStack){
+            ft.addToBackStack(builder.tag);
+        }
         ft.replace(builder.container, builder.fragment);
         ft.commitAllowingStateLoss();
     }
@@ -148,6 +158,9 @@ public class FragmentsManager {
         } else {
             ft.add(builder.container, builder.fragment, builder.tag);
         }
+        if (builder.addToBackStack){
+            ft.addToBackStack(builder.tag);
+        }
         ft.commitAllowingStateLoss();
     }
 
@@ -158,6 +171,9 @@ public class FragmentsManager {
             ft.setCustomAnimations(builder.enter, builder.exit, builder.enter, builder.exit);
         }
         ft.remove(builder.fragment);
+        if (builder.addToBackStack){
+            ft.addToBackStack(builder.tag);
+        }
         ft.commitAllowingStateLoss();
     }
 
@@ -170,6 +186,9 @@ public class FragmentsManager {
                 ft.setCustomAnimations(builder.enter, builder.exit, builder.enter, builder.exit);
             }
             ft.hide(builder.fragment);
+            if (builder.addToBackStack){
+                ft.addToBackStack(builder.tag);
+            }
             ft.commitAllowingStateLoss();
         }
     }

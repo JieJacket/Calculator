@@ -1,7 +1,5 @@
 package com.jie.calculator.calculator.model;
 
-import android.widget.TextView;
-
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jie.calculator.calculator.R;
 
@@ -12,14 +10,27 @@ public class LocationModel implements IModel {
     public static final int LABEL = 0x124;
 
     private String label;
+    private String mark;
     private TaxStandard standard;
 
     public void setType(int type) {
         this.type = type;
     }
 
+    public int getType() {
+        return type;
+    }
+
     public String getLabel() {
         return label;
+    }
+
+    public String getMark() {
+        return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
     }
 
     public void setLabel(String label) {

@@ -20,7 +20,7 @@
             android:value="100: e866cfb0, 101: 1101152570, 107: 5001121" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
