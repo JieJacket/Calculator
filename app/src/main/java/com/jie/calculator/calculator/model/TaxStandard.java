@@ -22,6 +22,14 @@ public class TaxStandard implements Serializable {
         return city;
     }
 
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public BaseCity getBase() {
         return base;
     }

@@ -14,10 +14,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.BusDelegateEvent;
 import com.jie.calculator.calculator.ui.fragment.CalculationFragment;
 import com.jie.calculator.calculator.ui.fragment.TaxFragment;
+import com.jie.calculator.calculator.util.EmptyObserver;
 import com.jie.calculator.calculator.util.FragmentsManager;
 import com.jie.calculator.calculator.util.RxBus;
 
@@ -31,15 +33,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private Toolbar toolbar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStatusBar();
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         disposables.add(RxBus.getIns().toObservable(BusDelegateEvent.class)
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                         if (fragment instanceof TaxFragment) {
                             TaxFragment taxFragment = (TaxFragment) fragment;
                             taxFragment.update(event.standard);
-                            updateActionBar(getString(R.string.app_name), false);
+                            updateActionBar(getString(R.string.str_personal_tax), false);
                         }
                     }
                 }));
@@ -116,8 +116,9 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(showLeftArrow);
     }
+
     public void updateActionBar(@StringRes int title, boolean showLeftArrow) {
-        updateActionBar(getString(title),showLeftArrow);
+        updateActionBar(getString(title), showLeftArrow);
     }
 
     @Override
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         if (getSupportFragmentManager().getFragments().size() <= 1) {
-            updateActionBar(getString(R.string.app_name), false);
+            updateActionBar(getString(R.string.str_personal_tax), false);
         }
     }
 }
