@@ -10,7 +10,7 @@ import com.chad.library.adapter.base.entity.MultiItemEntity;
  */
 public interface IModel extends MultiItemEntity {
     enum Type {
-        Normal(0), Insurance(1), Location_LABEL(2), Location(3);
+        Normal(0), Insurance(1), Location_LABEL(2), Location(3),Result(4);
         int value;
 
         Type(int value) {

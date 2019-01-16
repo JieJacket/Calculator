@@ -31,8 +31,8 @@ public class Insurance extends InsuranceBean {
 
     @Override
     public void convert(BaseViewHolder holder) {
-        TextView tvLabel = holder.getView(R.id.tv_insurance_label);
-        TextView tvPercent = holder.getView(R.id.tv_insurance_percent);
+        TextView tvLabel = holder.getView(R.id.tv_result_key);
+        TextView tvPercent = holder.getView(R.id.tv_result_value);
         tvLabel.setText(getTitle());
         tvPercent.setText(NumberFormat.getInstance().format(calculate(salary, max, min)));
 

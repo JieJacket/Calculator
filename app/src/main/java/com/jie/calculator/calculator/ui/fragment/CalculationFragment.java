@@ -18,6 +18,7 @@ import com.jie.calculator.calculator.model.BusDelegateEvent;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.Insurance;
 import com.jie.calculator.calculator.model.InsuranceBean;
+import com.jie.calculator.calculator.model.ResultModel;
 import com.jie.calculator.calculator.model.TaxItem;
 import com.jie.calculator.calculator.model.TaxStandard;
 import com.jie.calculator.calculator.ui.MainActivity;
@@ -25,9 +26,11 @@ import com.jie.calculator.calculator.util.Calculator;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableTransformer;
 
 /**
@@ -38,16 +41,13 @@ import io.reactivex.ObservableTransformer;
 public class CalculationFragment extends AbsFragment {
 
     private static final String EVENT = "event";
-    private static final String INSURANCE = "insurance";
-    private static final String STANDARD = "standard";
-    private static final String TYPE = "type";
 
     private double salary;
     private ArrayList<InsuranceBean> data;
     private TaxStandard standard;
 
-    private TextView tvPersonalTax, tvAfterTax, tvBeforeTax, tvInsuranceSum;
-    private RecyclerView rvInsurance;
+    private TextView tvAfterTax;
+    private RecyclerView rvInsurance,rvPersonalInfo;
     private double personalTax, insurance;
     private int type;
 
@@ -97,22 +97,16 @@ public class CalculationFragment extends AbsFragment {
     }
 
     private void initView(View view) {
-        tvBeforeTax = view.findViewById(R.id.tv_before_tax);
         tvAfterTax = view.findViewById(R.id.tv_after_tax);
-        tvPersonalTax = view.findViewById(R.id.tv_personal_tax);
-        tvInsuranceSum = view.findViewById(R.id.tv_insurance_sum);
         rvInsurance = view.findViewById(R.id.rv_insurance);
+        rvPersonalInfo = view.findViewById(R.id.rv_personal_info);
     }
 
     private void bindData() {
         NumberFormat format = NumberFormat.getInstance();
         if (type == BusDelegateEvent.CALCULATION_MONTH) {
             calcMonthTax();
-            tvBeforeTax.setText(getString(R.string.str_cny, format.format(salary)));
             tvAfterTax.setText(getString(R.string.str_cny, format.format(salary - insurance - personalTax)));
-            tvPersonalTax.setText(getString(R.string.str_cny, format.format(personalTax)));
-            tvInsuranceSum.setText(getString(R.string.str_cny, format.format(insurance)));
-
             disposables.add(Observable.fromIterable(data)
                     .compose(convert())
                     .map(d -> (IModel) d)
@@ -122,7 +116,7 @@ public class CalculationFragment extends AbsFragment {
                         @Override
                         protected List<Pair<Integer, Integer>> bindItemTypes() {
                             List<Pair<Integer, Integer>> pairs = new ArrayList<>();
-                            pairs.add(Pair.create(TaxItem.Type.Insurance.value(), R.layout.insurance_item));
+                            pairs.add(Pair.create(TaxItem.Type.Insurance.value(), R.layout.result_label_item));
                             return pairs;
                         }
                     })
@@ -131,11 +125,52 @@ public class CalculationFragment extends AbsFragment {
                         rvInsurance.setAdapter(adapter);
                     }));
 
+            disposables.add(Observable.create(
+                    (ObservableOnSubscribe<List<IModel>>) emitter -> {
+                        List<IModel> models = new ArrayList<>();
+                        models.add(ResultModel.create(R.string.str_before_tax_label, getString(R.string.str_cny, format.format(salary))));
+                        models.add(ResultModel.create(R.string.str_personal_tax_label, getString(R.string.str_cny, format.format(personalTax))));
+                        models.add(ResultModel.create(R.string.str_insurance_sum_label, getString(R.string.str_cny, format.format(insurance))));
+                        emitter.onNext(models);
+                        emitter.onComplete();
+                    })
+                    .map(data -> new CommonRecyclerViewAdapter(data) {
+                        @NonNull
+                        @Override
+                        protected List<Pair<Integer, Integer>> bindItemTypes() {
+                            Pair<Integer, Integer> pair = Pair.create(IModel.Type.Result.value(), R.layout.result_label_item);
+                            return new ArrayList<>(Arrays.asList(pair));
+                        }
+                    })
+                    .subscribe(adapter -> {
+                        rvPersonalInfo.setAdapter(adapter);
+                        rvPersonalInfo.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    },Throwable::printStackTrace))
+            ;
+
         } else if (type == BusDelegateEvent.CALCULATION_YEAR) {
             personalTax = Calculator.calcYearTax(salary);
-            tvBeforeTax.setText(getString(R.string.str_cny, format.format(salary)));
             tvAfterTax.setText(getString(R.string.str_cny, format.format(salary - insurance - personalTax)));
-            tvPersonalTax.setText(getString(R.string.str_cny, format.format(personalTax)));
+            disposables.add(Observable.create(
+                    (ObservableOnSubscribe<List<IModel>>) emitter -> {
+                        List<IModel> models = new ArrayList<>();
+                        models.add(ResultModel.create(R.string.str_before_tax_label, getString(R.string.str_cny, format.format(salary))));
+                        models.add(ResultModel.create(R.string.str_personal_tax_label, getString(R.string.str_cny, format.format(personalTax))));
+                        emitter.onNext(models);
+                        emitter.onComplete();
+                    })
+                    .map(data -> new CommonRecyclerViewAdapter(data) {
+                        @NonNull
+                        @Override
+                        protected List<Pair<Integer, Integer>> bindItemTypes() {
+                            Pair<Integer, Integer> pair = Pair.create(IModel.Type.Result.value(), R.layout.result_label_item);
+                            return new ArrayList<>(Arrays.asList(pair));
+                        }
+                    })
+                    .subscribe(adapter -> {
+                        rvPersonalInfo.setAdapter(adapter);
+                        rvPersonalInfo.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    },Throwable::printStackTrace));
         }
     }
 

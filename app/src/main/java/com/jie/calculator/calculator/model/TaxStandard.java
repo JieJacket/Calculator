@@ -39,7 +39,7 @@ public class TaxStandard implements Serializable {
         return name;
     }
 
-    public static class BaseCity {
+    public static class BaseCity implements Serializable{
         @SerializedName("max_base_3j")
         private String maxBase3j;
         @SerializedName("max_base_gjj")

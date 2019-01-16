@@ -3,85 +3,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="25dp"
         android:orientation="vertical">
-
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/str_after_tax_label" />
+            android:text="@string/str_after_tax_label"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tv_after_tax"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:textColor="@color/colorAccent"
-            android:textSize="30sp"
+            android:textSize="32sp"
             tools:text="321,390.77元" />
 
-        <FrameLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_personal_info"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/str_before_tax_label" />
-
-            <TextView
-                android:id="@+id/tv_before_tax"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:textSize="16sp"
-                tools:text="321,390.77元" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/str_personal_tax_label" />
-
-            <TextView
-                android:id="@+id/tv_personal_tax"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:textSize="16sp"
-                tools:text="321,390.77元" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/str_insurance_sum_label" />
-
-            <TextView
-                android:id="@+id/tv_insurance_sum"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:textSize="16sp"
-                tools:text="321,390.77元" />
-        </FrameLayout>
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:scrollbars="none" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_insurance"
