@@ -1,5 +1,6 @@
 package com.jie.calculator.calculator.cache;
 
+import com.jie.calculator.calculator.model.LocationModelv2;
 import com.jie.calculator.calculator.model.TaxPoint;
 import com.jie.calculator.calculator.model.TaxStandard;
 
@@ -23,4 +24,7 @@ public interface CacheProviders {
 
     @LifeCache(duration = 1, timeUnit = TimeUnit.DAYS)
     Observable<TaxPoint> getTaxPoints(Observable<TaxPoint> standards, DynamicKey userName, EvictDynamicKey evictDynamicKey);
+
+    @LifeCache(duration = 30, timeUnit = TimeUnit.DAYS)
+    Observable<List<LocationModelv2>> getCityList(Observable<List<LocationModelv2>> standards, DynamicKey userName, EvictDynamicKey evictDynamicKey);
 }

@@ -18,10 +18,11 @@ import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.adapter.RecycleViewDivider;
 import com.jie.calculator.calculator.model.BusDelegateEvent;
 import com.jie.calculator.calculator.model.IModel;
-import com.jie.calculator.calculator.model.LocationRightLabel;
 import com.jie.calculator.calculator.model.LocationModel;
+import com.jie.calculator.calculator.model.LocationRightLabel;
 import com.jie.calculator.calculator.model.TaxStandard;
 import com.jie.calculator.calculator.ui.MainActivity;
+import com.jie.calculator.calculator.util.EmptyObserver;
 import com.jie.calculator.calculator.util.ListUtils;
 import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.SystemUtil;
@@ -48,6 +49,8 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
     private CommonRecyclerViewAdapter labelAdapter, locationAdapter;
     private int lastSelectedPosition = 0;
 
+    private Set<Character> labels;
+
 
     @Nullable
     @Override
@@ -62,15 +65,14 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
         rvLabel = view.findViewById(R.id.rv_label);
         initListener();
         initLocation();
-        setDefaultSelection();
         updateActionBar();
     }
 
     private void setDefaultSelection() {
-        disposables.add(Observable.just(lastSelectedPosition)
+        Observable.just(lastSelectedPosition)
                 .filter(pos -> pos != -1)
                 .compose(setLabelSelection())
-                .subscribe());
+                .subscribe(new EmptyObserver<>());
     }
 
     private void initListener() {
@@ -86,27 +88,26 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
 
     private void adjustLabelStatus(int newState) {
         disposables.add(Observable.just(newState)
-//                .filter(state -> state == RecyclerView.SCROLL_STATE_DRAGGING || state == RecyclerView.SCROLL_STATE_SETTLING)
-                        .map(state -> locationLayoutManager.findFirstVisibleItemPosition())
-                        .filter(pos -> pos >= 0 && pos < locationLayoutManager.getItemCount())
-                        .flatMap(pos -> {
-                            IModel model;
-                            if ((model = locationAdapter.getItem(pos)) instanceof LocationModel) {
-                                return Observable.just((LocationModel) model);
-                            }
-                            return Observable.empty();
-                        })
-                        .flatMap(llm -> {
-                            String mark = llm.getMark();
-                            return Observable.fromIterable(labelAdapter.getData())
-                                    .filter(model -> model instanceof LocationRightLabel)
-                                    .map(model -> (LocationRightLabel) model)
-                                    .filter(lm -> TextUtils.equals(lm.getLabel(), mark))
-                                    .take(1)
-                                    .map(m -> labelAdapter.getData().indexOf(m));
-                        })
-                        .compose(setLabelSelection())
-                        .subscribe()
+                .map(state -> locationLayoutManager.findFirstVisibleItemPosition())
+                .filter(pos -> pos >= 0 && pos < locationLayoutManager.getItemCount())
+                .flatMap(pos -> {
+                    IModel model;
+                    if ((model = locationAdapter.getItem(pos)) instanceof LocationModel) {
+                        return Observable.just((LocationModel) model);
+                    }
+                    return Observable.empty();
+                })
+                .flatMap(llm -> {
+                    String mark = llm.getMark();
+                    return Observable.fromIterable(labelAdapter.getData())
+                            .filter(model -> model instanceof LocationRightLabel)
+                            .map(model -> (LocationRightLabel) model)
+                            .filter(lm -> TextUtils.equals(lm.getLabel(), mark))
+                            .take(1)
+                            .map(m -> labelAdapter.getData().indexOf(m));
+                })
+                .compose(setLabelSelection())
+                .subscribe()
         );
     }
 
@@ -127,7 +128,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
     }
 
     private void initLocation() {
-        disposables.add(CTApplication.getRepository().getStandards(false)
+        disposables.add(getCityList()
                 .map(this::sortStandards)
                 .map(list -> ListUtils.groupBy(list, obj -> (char) (obj.getCity().charAt(0) - 32)))
                 .map(map -> {
@@ -147,7 +148,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                             list.add(model);
                         }
                     }
-                    initLabel(map.keySet());
+                    labels = new TreeSet<>(map.keySet());
                     return list;
                 })
                 .map(data -> new CommonRecyclerViewAdapter(data) {
@@ -161,17 +162,37 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                     }
                 })
                 .doOnNext(adapter -> locationAdapter = adapter)
+                .filter(a -> !isDetached())
                 .subscribe(adapter -> {
                     rvLocation.setAdapter(adapter);
                     rvLocation.setLayoutManager(locationLayoutManager);
                     rvLocation.addOnScrollListener(locationScrollListener);
                     RecycleViewDivider divider = new RecycleViewDivider(getContext(), LinearLayoutManager.VERTICAL,
-                            SystemUtil.dp2px(getContext(), 1), android.R.color.darker_gray);
+                            SystemUtil.dp2px(getContext(), 0.5f), android.R.color.darker_gray);
                     rvLocation.addItemDecoration(divider);
-
                     adapter.setOnItemChildClickListener(LocationFragment.this);
-                }, Throwable::printStackTrace));
+                    if (labels != null){
+                        initLabel(labels);
+                        setDefaultSelection();
+                    }
+                }, Throwable::printStackTrace)
+        );
+    }
 
+    private Observable<List<TaxStandard>> getCityList() {
+        return CTApplication.getRepository().getCities(getActivity())
+                .flatMap(Observable::fromIterable)
+                .flatMap(v2 -> Observable.concat(CTApplication.getRepository().getStandard(v2.getCityCn(), false),
+                        CTApplication.getRepository().getStandard(v2.getProvinceCN(), false))
+                        .firstElement()
+                        .toObservable()
+                        .map(standard -> {
+                            standard.setCity(v2.getCityEn());
+                            standard.setName(v2.getCityCn());
+                            return standard;
+                        }))
+                .toList()
+                .toObservable();
     }
 
 
@@ -216,6 +237,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
                             }
                         })
                         .doOnSuccess(adapter -> labelAdapter = adapter)
+                        .filter(a -> !isDetached())
                         .subscribe(adapter -> {
                             rvLabel.setAdapter(adapter);
                             rvLabel.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
@@ -277,8 +299,7 @@ public class LocationFragment extends AbsFragment implements BaseQuickAdapter.On
 
     private void updateActionBar() {
         if (getActivity() instanceof MainActivity) {
-
-            ((MainActivity) getActivity()).updateActionBar( R.string.str_location_label, true);
+            ((MainActivity) getActivity()).updateActionBar(R.string.str_location_label, true);
         }
     }
 }
