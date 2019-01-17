@@ -23,13 +23,26 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName = new File(createApkName(variant))
+                }
+            }
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    flavorDimensions "online"
+
     productFlavors {
+        online {
+            dimension "online"
+        }
+        leakbuild {
+            dimension "online"
+        }
     }
 }
 
@@ -64,4 +77,20 @@ dependencies {
     implementation 'com.github.VictorAlbertos.Jolyglot:gson:0.0.4'
     //    implementation "org.permissionsdispatcher:permissionsdispatcher:4.3.0"
     //    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:4.3.0"
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+def createApkName(def variant) {
+    def projectName = project.name
+    def SEP = "_"
+    def flavor = variant.productFlavors[0].name
+    def buildType = variant.variantData.variantConfiguration.buildType.name
+    def version = variant.versionName
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+
+    return projectName + SEP + flavor + SEP + buildType + SEP + formattedDate + SEP + version + ".apk"
 }

@@ -9,15 +9,15 @@
         android:name=".CTApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_calculator"
+        android:icon="@mipmap/ic_artboard"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_calculator"
+        android:roundIcon="@mipmap/ic_artboard"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data
-            android:name="ADS_PLATFORM_IDS"
-            android:value="100: e866cfb0, 101: 1101152570, 107: 5001121" />
+        <!--<meta-data-->
+            <!--android:name="ADS_PLATFORM_IDS"-->
+            <!--android:value="100: e866cfb0, 101: 1101152570, 107: 5001121" />-->
 
         <activity
             android:name=".ui.MainActivity"

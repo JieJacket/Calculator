@@ -24,6 +24,8 @@ import com.jie.calculator.calculator.model.TaxStandard;
 import com.jie.calculator.calculator.ui.MainActivity;
 import com.jie.calculator.calculator.util.Calculator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +49,7 @@ public class CalculationFragment extends AbsFragment {
     private TaxStandard standard;
 
     private TextView tvAfterTax;
-    private RecyclerView rvInsurance,rvPersonalInfo;
+    private RecyclerView rvInsurance, rvPersonalInfo;
     private double personalTax, insurance;
     private int type;
 
@@ -104,6 +106,7 @@ public class CalculationFragment extends AbsFragment {
 
     private void bindData() {
         NumberFormat format = NumberFormat.getInstance();
+        format.setMaximumFractionDigits(2);
         if (type == BusDelegateEvent.CALCULATION_MONTH) {
             calcMonthTax();
             tvAfterTax.setText(getString(R.string.str_cny, format.format(salary - insurance - personalTax)));
@@ -145,7 +148,7 @@ public class CalculationFragment extends AbsFragment {
                     .subscribe(adapter -> {
                         rvPersonalInfo.setAdapter(adapter);
                         rvPersonalInfo.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    },Throwable::printStackTrace))
+                    }, Throwable::printStackTrace))
             ;
 
         } else if (type == BusDelegateEvent.CALCULATION_YEAR) {
@@ -170,7 +173,7 @@ public class CalculationFragment extends AbsFragment {
                     .subscribe(adapter -> {
                         rvPersonalInfo.setAdapter(adapter);
                         rvPersonalInfo.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    },Throwable::printStackTrace));
+                    }, Throwable::printStackTrace));
         }
     }
 
@@ -231,5 +234,4 @@ public class CalculationFragment extends AbsFragment {
                     R.string.month_list : R.string.year_list, true);
         }
     }
-
 }
