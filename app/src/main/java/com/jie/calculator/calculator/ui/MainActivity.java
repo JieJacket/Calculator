@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 .flatMap(response -> Observable.just(new EmptyWrapper<>(response.getData())))
                 .filter(EmptyWrapper::isNonNull)
                 .map(EmptyWrapper::getValue)
-                .filter(bean -> isValidVersion(bean.getBuildVersion()))
+                .filter(bean -> isValidVersion(bean.getBuildVersionNo()))
                 .subscribe(new EmptyObserver<PgyCheckResponse.DataBean>() {
                     @Override
                     public void onNext(PgyCheckResponse.DataBean bean) {

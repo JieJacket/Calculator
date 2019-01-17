@@ -40,8 +40,8 @@ public class PgyCheckResponse {
         private String buildBuildVersion;
         private String downloadURL;
         private boolean buildHaveNewVersion;
-        private String buildVersionNo;
-        private int buildVersion;
+        private int buildVersionNo;
+        private String buildVersion;
         private String buildShortcutUrl;
         private String buildUpdateDescription;
 
@@ -69,19 +69,19 @@ public class PgyCheckResponse {
             this.buildHaveNewVersion = buildHaveNewVersion;
         }
 
-        public String getBuildVersionNo() {
+        public int getBuildVersionNo() {
             return buildVersionNo;
         }
 
-        public void setBuildVersionNo(String buildVersionNo) {
+        public void setBuildVersionNo(int buildVersionNo) {
             this.buildVersionNo = buildVersionNo;
         }
 
-        public int getBuildVersion() {
+        public String getBuildVersion() {
             return buildVersion;
         }
 
-        public void setBuildVersion(int buildVersion) {
+        public void setBuildVersion(String buildVersion) {
             this.buildVersion = buildVersion;
         }
 
