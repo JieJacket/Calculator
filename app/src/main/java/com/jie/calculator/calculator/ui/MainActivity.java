@@ -1,11 +1,21 @@
 package com.jie.calculator.calculator.ui;
 
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -14,17 +24,28 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.BusDelegateEvent;
+import com.jie.calculator.calculator.model.pgy.PgyCheckResponse;
+import com.jie.calculator.calculator.network.ToolsGenerator;
 import com.jie.calculator.calculator.ui.fragment.CalculationFragment;
 import com.jie.calculator.calculator.ui.fragment.TaxFragment;
+import com.jie.calculator.calculator.util.CommonConstants;
 import com.jie.calculator.calculator.util.EmptyObserver;
+import com.jie.calculator.calculator.util.EmptyWrapper;
+import com.jie.calculator.calculator.util.FileProviderUtils;
 import com.jie.calculator.calculator.util.FragmentsManager;
 import com.jie.calculator.calculator.util.RxBus;
 
+import java.io.File;
+import java.util.UUID;
+
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +53,26 @@ public class MainActivity extends AppCompatActivity {
     CompositeDisposable disposables = new CompositeDisposable();
 
     private static final String TAG = "MainActivity";
+    private long downloadId = -1;
+    private String apkName = "_calculator.apk";
+
+    private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            if (dm == null) {
+                return;
+            }
+            try {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setDataAndType(FileProviderUtils.getFileUri(getApplicationContext(), getInstalledFile()), "application/vnd.android.package-archive");
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(i);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         setStatusBar();
         setContentView(R.layout.activity_main);
 
+        apkName = UUID.randomUUID().toString() + apkName;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -66,6 +108,61 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }));
 
+        ToolsGenerator.getInst().getPgyServce()
+                .checkAppVersion(RequestBody.create(MediaType.parse("multipart/form-data"), CommonConstants.API_KEY),
+                        RequestBody.create(MediaType.parse("multipart/form-data"), CommonConstants.APP_KEY))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(response -> response != null)
+                .flatMap(response -> Observable.just(new EmptyWrapper<>(response.getData())))
+                .filter(EmptyWrapper::isNonNull)
+                .map(EmptyWrapper::getValue)
+                .filter(bean -> isValidVersion(bean.getBuildVersion()))
+                .subscribe(new EmptyObserver<PgyCheckResponse.DataBean>() {
+                    @Override
+                    public void onNext(PgyCheckResponse.DataBean bean) {
+                        if (bean.isBuildHaveNewVersion()) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.str_update)
+                                    .setMessage(TextUtils.isEmpty(bean.getBuildUpdateDescription()) ?
+                                            getString(R.string.str_update_desc) : bean.getBuildUpdateDescription())
+                                    .setPositiveButton(R.string.str_install, (dialog, which) -> {
+                                        downloadAndInstall(bean.getDownloadURL());
+                                    })
+                                    .setNegativeButton(R.string.str_cancel, null)
+                                    .setCancelable(false)
+                                    .show();
+                        }
+                    }
+                });
+
+        registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+    }
+
+    private boolean isValidVersion(int version) {
+        PackageManager manager = getPackageManager();
+        try {
+            PackageInfo info = manager.getPackageInfo(getPackageName(), 0);
+            return info.versionCode < version;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void downloadAndInstall(String apkUrl) {
+        DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        if (dm == null) {
+            return;
+        }
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
+        request.setTitle(getString(R.string.app_name));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+        request.setDestinationUri(Uri.fromFile(getInstalledFile()));
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        downloadId = dm.enqueue(request);
     }
 
 
@@ -104,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         disposables.clear();
+        unregisterReceiver(downloadReceiver);
     }
 
     public void updateActionBar(String title, boolean showLeftArrow) {
@@ -138,4 +236,9 @@ public class MainActivity extends AppCompatActivity {
             updateActionBar(getString(R.string.str_personal_tax), false);
         }
     }
+
+    private File getInstalledFile() {
+        return new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), apkName);
+    }
+
 }

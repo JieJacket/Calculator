@@ -26,4 +26,8 @@
     <string name="month_list">月薪清单</string>
     <string name="year_list">年终奖清单</string>
     <string name="str_location_label">所在城市</string>
+    <string name="str_update">更新提示</string>
+    <string name="str_install">安装</string>
+    <string name="str_cancel">取消</string>
+    <string name="str_update_desc">有新版本更新</string>
 </resources>

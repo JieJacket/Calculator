@@ -2,7 +2,6 @@ package com.jie.calculator.calculator.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jie.calculator.calculator.util.CommonConstants;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -43,11 +42,11 @@ public class ToolsGenerator {
         return new GsonBuilder().setLenient().create();
     }
 
-    public IMiServer getIMiServer() {
-        return getIMiServer(CommonConstants.URL1);
+    public PGYServer getPgyServce() {
+        return getIMiServer("https://www.pgyer.com/");
     }
 
-    public IMiServer getIMiServer(String baseUrl) {
-        return build(baseUrl).create(IMiServer.class);
+    public PGYServer getIMiServer(String baseUrl) {
+        return build(baseUrl).create(PGYServer.class);
     }
 }

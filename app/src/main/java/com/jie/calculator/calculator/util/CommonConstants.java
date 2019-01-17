@@ -30,4 +30,6 @@ public class CommonConstants {
             InsuranceBean.create(InsuranceBean.Birth, DEFAULT_CITY, 0)
     ));
 
+    public static final String API_KEY = "eec2d25682b403f4adc3061ba6f9ef35";
+    public static final String APP_KEY = "c9079edc3940f93de4eae6736a3c9009";
 }
