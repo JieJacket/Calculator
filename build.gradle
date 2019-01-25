@@ -20,9 +20,19 @@ allprojects {
         jcenter()
         maven { url "https://jitpack.io" }
         maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+        maven {
+            url "http://repo.baichuan-android.taobao.com/content/groups/BaichuanRepositories/"
+        }
+
+        flatDir {
+            dirs 'libs'
+        }
+
+
     }
 
 }
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir

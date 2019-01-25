@@ -14,8 +14,10 @@ android {
         applicationId "com.jal.calculator.store"
         minSdkVersion 15
         targetSdkVersion 27
+        multiDexEnabled true
+
         versionCode 2
-        versionName "1.1"
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -28,6 +30,9 @@ android {
                     outputFileName = new File(createApkName(variant))
                 }
             }
+        }
+        debug {
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -43,12 +48,6 @@ android {
         leakbuild {
             dimension "online"
         }
-    }
-}
-
-repositories {
-    flatDir {
-        dirs 'libs'
     }
 }
 
@@ -68,15 +67,17 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     implementation 'com.google.code.gson:gson:2.8.4'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
-    //
-    //    implementation (name:"platform-release",ext:"aar")
-    //    implementation (name: 'open_ad_sdk', ext: 'aar')
-    //    implementation 'io.reactivex:rxjava:1.1.6'
-    //    implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation 'com.android.support:multidex:1.0.1'
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+
+    implementation(name: 'open_ad_sdk', ext: 'aar')
     implementation 'com.github.VictorAlbertos.RxCache:runtime:1.8.3-2.x'
     implementation 'com.github.VictorAlbertos.Jolyglot:gson:0.0.4'
-    //    implementation "org.permissionsdispatcher:permissionsdispatcher:4.3.0"
-    //    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:4.3.0"
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation project(':store')
+    implementation project(':ad')
 }
 
 configurations.all {

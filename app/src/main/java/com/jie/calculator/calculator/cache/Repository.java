@@ -4,6 +4,11 @@ import android.text.TextUtils;
 import android.util.Pair;
 
 import com.google.gson.reflect.TypeToken;
+import com.jal.calculator.store.ds.model.ali.TBKFavoriteItemRequest;
+import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
+import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
+import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
+import com.jal.calculator.store.ds.network.AliServerManager;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.InsuranceBean;
 import com.jie.calculator.calculator.model.TaxPoint;
@@ -60,6 +65,31 @@ public class Repository {
                 .takeUntil(p -> p != null)
                 .compose(convert());
     }
+
+    public Observable<List<TBKFavoritesResp>> getTBKFavoritesCategory(boolean update, TBKFavoriteListRequest request) {
+        return cacheProviders.getTBKFavoritesCategory(AliServerManager.getInst().getServer()
+                        .getTBKFavoritesList(request.signRequest())
+                        .flatMap(resp -> {
+                            if (resp != null && resp.getResults() != null) {
+                                return Observable.just(resp.getResults());
+                            }
+                            return Observable.empty();
+                        }),
+                new DynamicKey("TBKFavoritesCategory"), new EvictDynamicKey(update));
+    }
+
+    public Observable<List<TBKFavoritesItemResp>> getTBKFavoritesItem(boolean update, long favoritesId, TBKFavoriteItemRequest request) {
+        return cacheProviders.getTBKFavoritesItem(AliServerManager.getInst().getServer()
+                        .getTBKFavoritesItem(request.signRequest())
+                        .flatMap(resp -> {
+                            if (resp != null && resp.getResults() != null) {
+                                return Observable.just(resp.getResults());
+                            }
+                            return Observable.empty();
+                        }),
+                new DynamicKey("TBKFavoritesItem:" + favoritesId), new EvictDynamicKey(update));
+    }
+
 
     public ObservableTransformer<TaxPoint.IFBean, Pair<String, List<IModel>>> convert() {
         return upstream -> upstream.map(bean -> {

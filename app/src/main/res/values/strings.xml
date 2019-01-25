@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">薪资计算器</string>
+    <string name="app_name">Simpling</string>
     <string name="str_personal_tax">个税</string>
     <string name="str_mortgage">房贷</string>
     <string name="str_pre_tax_amount_tag">税前收入(元)</string>
