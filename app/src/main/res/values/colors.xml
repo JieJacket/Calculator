@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimaryDark">#f1810b</color>
     <color name="colorAccent">#ee7b41</color>
     <color name="colorStatusBar">#7F000000</color>
     <color name="colorLightTaxLoanText">#7f161515</color>
     <color name="colorTextNormal">#535353</color>
     <color name="colorTextNormalLight">#F3F3F3</color>
     <color name="colorCommonBorder">#EBEBEB</color>
+    <color name="app_top_color">#f1810b</color>
 </resources>

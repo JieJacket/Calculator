@@ -9,40 +9,98 @@ import java.util.List;
  */
 public class TBKFavoritesItemResp {
 
-    private String event_end_time;
-    private String event_start_time;
+    private long category;
+    private String commission_rate;
+    private String coupon_click_url;
+    private String coupon_end_time;
+    private String coupon_info;
+    private long coupon_remain_count;
+    private String coupon_start_time;
+    private long coupon_total_count;
+    private String item_description;
     private String item_url;
     private String nick;
     private long num_iid;
     private String pict_url;
-    private String provcity;
-    private String reserve_price;
     private long seller_id;
     private String shop_title;
-    private long status;
     private String title;
-    private String tk_rate;
-    private long type;
     private long user_type;
     private long volume;
     private String zk_final_price;
-    private String zk_final_price_wap;
+    private String reserve_price;
     private List<String> small_images;
 
-    public String getEvent_end_time() {
-        return event_end_time;
+    public long getCategory() {
+        return category;
     }
 
-    public void setEvent_end_time(String event_end_time) {
-        this.event_end_time = event_end_time;
+    public void setCategory(long category) {
+        this.category = category;
     }
 
-    public String getEvent_start_time() {
-        return event_start_time;
+    public String getCommission_rate() {
+        return commission_rate;
     }
 
-    public void setEvent_start_time(String event_start_time) {
-        this.event_start_time = event_start_time;
+    public void setCommission_rate(String commission_rate) {
+        this.commission_rate = commission_rate;
+    }
+
+    public String getCoupon_click_url() {
+        return coupon_click_url;
+    }
+
+    public void setCoupon_click_url(String coupon_click_url) {
+        this.coupon_click_url = coupon_click_url;
+    }
+
+    public String getCoupon_end_time() {
+        return coupon_end_time;
+    }
+
+    public void setCoupon_end_time(String coupon_end_time) {
+        this.coupon_end_time = coupon_end_time;
+    }
+
+    public String getCoupon_info() {
+        return coupon_info;
+    }
+
+    public void setCoupon_info(String coupon_info) {
+        this.coupon_info = coupon_info;
+    }
+
+    public long getCoupon_remain_count() {
+        return coupon_remain_count;
+    }
+
+    public void setCoupon_remain_count(long coupon_remain_count) {
+        this.coupon_remain_count = coupon_remain_count;
+    }
+
+    public String getCoupon_start_time() {
+        return coupon_start_time;
+    }
+
+    public void setCoupon_start_time(String coupon_start_time) {
+        this.coupon_start_time = coupon_start_time;
+    }
+
+    public long getCoupon_total_count() {
+        return coupon_total_count;
+    }
+
+    public void setCoupon_total_count(long coupon_total_count) {
+        this.coupon_total_count = coupon_total_count;
+    }
+
+    public String getItem_description() {
+        return item_description;
+    }
+
+    public void setItem_description(String item_description) {
+        this.item_description = item_description;
     }
 
     public String getItem_url() {
@@ -77,22 +135,6 @@ public class TBKFavoritesItemResp {
         this.pict_url = pict_url;
     }
 
-    public String getProvcity() {
-        return provcity;
-    }
-
-    public void setProvcity(String provcity) {
-        this.provcity = provcity;
-    }
-
-    public String getReserve_price() {
-        return reserve_price;
-    }
-
-    public void setReserve_price(String reserve_price) {
-        this.reserve_price = reserve_price;
-    }
-
     public long getSeller_id() {
         return seller_id;
     }
@@ -109,36 +151,12 @@ public class TBKFavoritesItemResp {
         this.shop_title = shop_title;
     }
 
-    public long getStatus() {
-        return status;
-    }
-
-    public void setStatus(long status) {
-        this.status = status;
-    }
-
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getTk_rate() {
-        return tk_rate;
-    }
-
-    public void setTk_rate(String tk_rate) {
-        this.tk_rate = tk_rate;
-    }
-
-    public long getType() {
-        return type;
-    }
-
-    public void setType(long type) {
-        this.type = type;
     }
 
     public long getUser_type() {
@@ -165,12 +183,12 @@ public class TBKFavoritesItemResp {
         this.zk_final_price = zk_final_price;
     }
 
-    public String getZk_final_price_wap() {
-        return zk_final_price_wap;
+    public String getReserve_price() {
+        return reserve_price;
     }
 
-    public void setZk_final_price_wap(String zk_final_price_wap) {
-        this.zk_final_price_wap = zk_final_price_wap;
+    public void setReserve_price(String reserve_price) {
+        this.reserve_price = reserve_price;
     }
 
     public List<String> getSmall_images() {

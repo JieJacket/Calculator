@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  *
  * @author Jie.Wu
  */
-public class TBKFavoriteItemRequest extends AliBaseRequest {
+public class TBKCouponRequest extends AliBaseRequest {
 
     @SerializedName("page_no")
     private int pageNo;
@@ -18,15 +18,17 @@ public class TBKFavoriteItemRequest extends AliBaseRequest {
     @SerializedName("adzone_id")
     private String adzone_id;
 
-    @SerializedName("favorites_id")
-    private long favoritesId;
+//    @SerializedName("cat")
+//    private String cat;
 
+    @SerializedName("q")
+    private String q;
 
-    public TBKFavoriteItemRequest() {
+    public TBKCouponRequest() {
         pageNo = 1;
         pageSize = 20;
         fields = "num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick,shop_title,zk_final_price_wap,event_start_time,event_end_time,tk_rate,status,type";
-        method = "taobao.tbk.uatm.favorites.item.get";
+        method = "taobao.tbk.dg.item.coupon.get";
     }
 
     public void setPageNo(int pageNo) {
@@ -41,7 +43,11 @@ public class TBKFavoriteItemRequest extends AliBaseRequest {
         this.adzone_id = adzone_id;
     }
 
-    public void setFavoritesId(long favoritesId) {
-        this.favoritesId = favoritesId;
+//    public void setCat(String cat) {
+//        this.cat = cat;
+//    }
+
+    public void setQ(String q) {
+        this.q = q;
     }
 }

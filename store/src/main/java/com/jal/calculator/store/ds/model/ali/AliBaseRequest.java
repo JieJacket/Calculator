@@ -66,7 +66,7 @@ abstract class AliBaseRequest {
     String fields;
 
     @SerializedName("platform")
-    private String platform  = Constants.DEFAULT_PLATFORM;
+    String platform  = Constants.DEFAULT_PLATFORM;
 
     public AliBaseRequest() {
         v = "2.0";

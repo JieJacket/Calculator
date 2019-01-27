@@ -29,7 +29,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         TBKFavoritesResp tbkFavoritesResp = data.get(position);
-        return GoodsFragment.newInstance(tbkFavoritesResp.getFavorites_id(), adzone_id);
+        return GoodsFragment.newInstance(tbkFavoritesResp.getFavorites_id());
     }
 
     @Override

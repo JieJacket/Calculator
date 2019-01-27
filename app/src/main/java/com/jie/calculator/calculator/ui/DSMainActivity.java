@@ -6,10 +6,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainPagerAdapter;
+import com.jie.calculator.calculator.util.SystemUtil;
 import com.jie.calculator.calculator.util.UpdateUtils;
 
 import io.reactivex.Observable;
@@ -34,8 +36,8 @@ public class DSMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SystemUtil.setStatusBar(this,R.color.app_top_color);
         setContentView(R.layout.ds_main);
-
         UpdateUtils.getInst().register(this);
 
         initView();
@@ -65,5 +67,6 @@ public class DSMainActivity extends AppCompatActivity {
         super.onDestroy();
         UpdateUtils.getInst().unregister(this);
         disposables.clear();
+        DSManager.getInst().destroy();
     }
 }
