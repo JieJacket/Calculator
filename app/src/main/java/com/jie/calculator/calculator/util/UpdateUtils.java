@@ -15,6 +15,7 @@ import android.text.TextUtils;
 
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.pgy.PgyCheckResponse;
+import com.jie.calculator.calculator.model.pgy.PgyRequest;
 import com.jie.calculator.calculator.network.ToolsGenerator;
 
 import java.io.File;
@@ -67,12 +68,14 @@ public class UpdateUtils {
             }
         };
 
+        context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    public void checkVersion(Context context){
         ToolsGenerator.getInst().getPgyServce()
-                .checkAppVersion(RequestBody.create(MediaType.parse("multipart/form-data"), CommonConstants.API_KEY),
-                        RequestBody.create(MediaType.parse("multipart/form-data"), CommonConstants.APP_KEY))
+                .checkAppVersion(new PgyRequest().toMap())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .filter(response -> response != null)
                 .flatMap(response -> Observable.just(new EmptyWrapper<>(response.getData())))
                 .filter(EmptyWrapper::isNonNull)
                 .map(EmptyWrapper::getValue)
@@ -94,8 +97,6 @@ public class UpdateUtils {
                         }
                     }
                 });
-
-        context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
 

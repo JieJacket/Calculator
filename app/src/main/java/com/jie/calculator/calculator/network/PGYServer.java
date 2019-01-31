@@ -2,11 +2,12 @@ package com.jie.calculator.calculator.network;
 
 import com.jie.calculator.calculator.model.pgy.PgyCheckResponse;
 
+import java.util.Map;
+
 import io.reactivex.Observable;
-import okhttp3.RequestBody;
-import retrofit2.http.Multipart;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 
 /**
  * Created on 2019/1/4.
@@ -15,8 +16,8 @@ import retrofit2.http.Part;
  */
 public interface PGYServer {
 
-    @Multipart
     @POST("apiv2/app/check")
-    Observable<PgyCheckResponse> checkAppVersion(@Part("_api_key") RequestBody apiKey, @Part("appKey") RequestBody appKey);
+    @FormUrlEncoded
+    Observable<PgyCheckResponse> checkAppVersion(@FieldMap Map<String, String> map);
 
 }

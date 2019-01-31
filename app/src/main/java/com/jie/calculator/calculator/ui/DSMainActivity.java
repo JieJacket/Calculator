@@ -39,6 +39,7 @@ public class DSMainActivity extends AppCompatActivity {
         SystemUtil.setStatusBar(this,R.color.app_top_color);
         setContentView(R.layout.ds_main);
         UpdateUtils.getInst().register(this);
+        UpdateUtils.getInst().checkVersion(this);
 
         initView();
         fetchFavList();

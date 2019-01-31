@@ -1,7 +1,12 @@
 package com.jie.calculator.calculator.model.pgy;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import com.jie.calculator.calculator.util.CommonConstants;
+
+import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Created on 2019/1/17.
@@ -11,10 +16,10 @@ import com.jie.calculator.calculator.util.CommonConstants;
 public class PgyRequest {
 
     @SerializedName("_api_key")
-    private String apiKey = CommonConstants.API_KEY;
+    private String apiKey = CommonConstants.PGY_API_KEY;
 
     @SerializedName("appKey")
-    private String appKey = CommonConstants.APP_KEY;
+    private String appKey = CommonConstants.PGY_APP_KEY;
 
     public String getApiKey() {
         return apiKey;
@@ -30,5 +35,12 @@ public class PgyRequest {
 
     public void setAppKey(String appKey) {
         this.appKey = appKey;
+    }
+
+    public Map<String, String> toMap() {
+        String json = new Gson().toJson(this);
+        Type type = new TypeToken<Map<String, String>>() {
+        }.getType();
+        return (Map<String, String>) new Gson().fromJson(json,type);
     }
 }

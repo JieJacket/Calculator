@@ -1,8 +1,6 @@
 package com.jal.calculator.store.ds.network;
 
 import com.jal.calculator.store.ds.model.tbk.TBKBaseResp;
-import com.jal.calculator.store.ds.model.tbk.TBKCouponGoodsResp;
-import com.jal.calculator.store.ds.model.tbk.TBKGoodsResp;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
 
