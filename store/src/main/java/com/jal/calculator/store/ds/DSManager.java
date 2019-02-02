@@ -3,10 +3,12 @@ package com.jal.calculator.store.ds;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.ali.auth.third.core.model.Session;
+import com.ali.auth.third.ui.context.CallbackContext;
 import com.alibaba.baichuan.android.trade.AlibcTrade;
 import com.alibaba.baichuan.android.trade.AlibcTradeSDK;
 import com.alibaba.baichuan.android.trade.callback.AlibcTradeCallback;
@@ -24,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created on 2019/1/24.
@@ -46,6 +47,7 @@ public class DSManager {
 
         private static final DSManager instance = new DSManager();
 
+
     }
 
     public static DSManager getInst() {
@@ -57,6 +59,7 @@ public class DSManager {
             @Override
             public void onSuccess() {
                 Log.e(TAG, "onSuccess");
+                syncPublicConfig();
             }
 
             @Override
@@ -65,7 +68,6 @@ public class DSManager {
             }
         });
         initBaseConfig(context.getApplicationContext());
-        syncPublicConfig();
     }
 
     private void initBaseConfig(Context context) {
@@ -77,25 +79,26 @@ public class DSManager {
 
     public Observable<Integer> authLogin() {
         return Observable.just(AlibcLogin.getInstance())
-                .flatMap(alibcLogin -> Observable.create((ObservableOnSubscribe<Integer>) e -> {
-                    alibcLogin.showLogin(new AlibcLoginCallback() {
-                        @Override
-                        public void onSuccess(int i) {
-                            if (!e.isDisposed()) {
-                                e.onNext(i);
-                                e.onComplete();
-                            }
+                .flatMap(alibcLogin -> Observable.create(e -> alibcLogin.showLogin(new AlibcLoginCallback() {
+                    @Override
+                    public void onSuccess(int i) {
+                        if (!e.isDisposed()) {
+                            e.onNext(i);
+                            e.onComplete();
                         }
+                    }
 
-                        @Override
-                        public void onFailure(int i, String s) {
-                            if (!e.isDisposed()) {
-                                e.tryOnError(new RuntimeException(i + "K" + s));
-                            }
+                    @Override
+                    public void onFailure(int i, String s) {
+                        if (!e.isDisposed()) {
+                            e.onError(new RuntimeException(i + ":" + s));
                         }
-                    });
+                    }
+                })));
+    }
 
-                }));
+    public void onAuthActivityResult(int requestCode, int resultCode, Intent data) {
+        CallbackContext.onActivityResult(requestCode, resultCode, data);
     }
 
     public boolean isAliAuth() {
@@ -137,6 +140,7 @@ public class DSManager {
         alibcTaokeParams.extraParams = new HashMap<>();
         alibcTaokeParams.extraParams.put("taokeAppkey", Constants.ALI_APP_KEY);
         AlibcTradeSDK.setTaokeParams(alibcTaokeParams);
+        AlibcTradeSDK.setSyncForTaoke(true);
     }
 
 

@@ -6,39 +6,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
     android:layout_marginTop="8dp"
+    android:layout_marginRight="4dp"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardCornerRadius="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="12dp">
 
         <ImageView
             android:id="@+id/iv_pict"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             tools:src="@drawable/ic_launcher_background" />
 
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="高级感za小包包女2018新款韩版ra时尚女包洋气百搭宽带单肩斜挎包" />
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            tools:text="高级感za小包包女2018新款韩版ra时尚女包洋气百搭宽带单肩斜挎包高级感za小包包女2018新款韩版ra时尚女包洋气百搭宽带单肩斜挎包" />
 
         <TextView
             android:id="@+id/tv_coupon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             tools:text="123" />
 
         <TextView
             android:id="@+id/tv_final_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             tools:text="124" />
 
         <TextView
@@ -51,6 +60,8 @@
             android:id="@+id/tv_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             tools:text="100" />
     </LinearLayout>
 

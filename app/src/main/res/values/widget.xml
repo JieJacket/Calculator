@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base_Main_Search_Edit">
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:background">@drawable/top_edit_text_shape</item>
+        <item name="android:drawableLeft">@drawable/ic_search_black</item>
+        <item name="android:drawableStart">@drawable/ic_search_black</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:imeOptions">actionSearch</item>
+        <item name="android:layout_marginLeft">18dp</item>
+        <item name="android:layout_marginRight">18dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingLeft">18dp</item>
+        <item name="android:paddingRight">18dp</item>
+    </style>
+
+    <style name="Main_Search_Edit" parent="Base_Main_Search_Edit">
+
+    </style>
+
+</resources>

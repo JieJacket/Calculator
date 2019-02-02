@@ -30,4 +30,9 @@
     <string name="str_install">安装</string>
     <string name="str_cancel">取消</string>
     <string name="str_update_desc">有新版本更新</string>
+    <string name="str_search_hint">搜索商品名称</string>
+    <string name="str_search_transition">Search</string>
+    <string name="str_monthly_volume">月销%d</string>
+    <string name="str_delete_alert">确认删除改历史记录？</string>
+    <string name="str_confirm">确认</string>
 </resources>

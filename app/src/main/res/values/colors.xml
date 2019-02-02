@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#f1810b</color>
+    <color name="colorPrimary">#EA6564</color>
+    <color name="colorPrimaryDark">#EA6564</color>
     <color name="colorAccent">#ee7b41</color>
     <color name="colorStatusBar">#7F000000</color>
     <color name="colorLightTaxLoanText">#7f161515</color>
     <color name="colorTextNormal">#535353</color>
     <color name="colorTextNormalLight">#F3F3F3</color>
     <color name="colorCommonBorder">#EBEBEB</color>
-    <color name="app_top_color">#f1810b</color>
+    <color name="mainSearchEditBGColor">#ffffff</color>
+
+    <color name="colorMain1">#EA6564</color>
+    <color name="colorMain2">#E98C85</color>
+    <color name="colorMain3">#F4BCA9</color>
+    <color name="colorMain4">#F9DCC8</color>
+    <color name="colorMain5">#A2928A</color>
 </resources>

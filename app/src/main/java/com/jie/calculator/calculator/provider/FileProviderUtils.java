@@ -1,4 +1,4 @@
-package com.jie.calculator.calculator.util;
+package com.jie.calculator.calculator.provider;
 
 import android.content.Context;
 import android.net.Uri;

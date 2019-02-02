@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Main_Search_Edit" parent="Base_Main_Search_Edit">
+        <item name="android:transitionName">@string/str_search_transition</item>
+    </style>
+</resources>

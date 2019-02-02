@@ -17,14 +17,13 @@ import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.pgy.PgyCheckResponse;
 import com.jie.calculator.calculator.model.pgy.PgyRequest;
 import com.jie.calculator.calculator.network.ToolsGenerator;
+import com.jie.calculator.calculator.provider.FileProviderUtils;
 
 import java.io.File;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 
 /**
  * Created on 2019/1/25.

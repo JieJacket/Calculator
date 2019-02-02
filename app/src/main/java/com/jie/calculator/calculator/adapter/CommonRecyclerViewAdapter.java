@@ -35,13 +35,19 @@ public abstract class CommonRecyclerViewAdapter extends BaseMultiItemQuickAdapte
         }
     }
 
-    public void update(List<? extends IModel> data) {
+    public void update(List<? extends IModel> data, boolean needClear) {
         if (mData != data) {
-            mData.clear();
+            if (needClear) {
+                mData.clear();
+            }
             mData.addAll(data);
         }
 
         notifyDataSetChanged();
+    }
+
+    public void update(List<? extends IModel> data) {
+        this.update(data, true);
     }
 
     @Override

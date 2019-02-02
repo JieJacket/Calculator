@@ -1,55 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/app_top_color"
-        android:fitsSystemWindows="true">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:orientation="vertical">
-
-                <EditText
-                    android:id="@+id/et_top_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginLeft="18dp"
-                    android:layout_marginRight="18dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/top_edit_text_shape"
-                    android:paddingLeft="18dp"
-                    android:paddingRight="18dp"
-                    android:singleLine="true"
-                    android:textColor="@android:color/white"
-                    android:textCursorDrawable="@drawable/top_search_edit_indicator" />
-
-                <include layout="@layout/tab_layout" />
-            </LinearLayout>
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vp_content"
+    <fragment
+        android:id="@+id/fragment_main"
+        class="com.jie.calculator.calculator.ui.fragment.DSMainFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        tools:layout="@layout/ds_main_fragment" />
 
 </android.support.design.widget.CoordinatorLayout>

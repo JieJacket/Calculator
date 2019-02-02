@@ -20,6 +20,9 @@ public class TBKBaseResp<T> {
     @SerializedName("results")
     private List<T> results;
 
+    @SerializedName("result_list")
+    private List<T> resultList;
+
     public int getTotalResults() {
         return totalResults;
     }
@@ -30,5 +33,9 @@ public class TBKBaseResp<T> {
 
     public List<T> getResults() {
         return results;
+    }
+
+    public List<T> getResultList() {
+        return resultList;
     }
 }

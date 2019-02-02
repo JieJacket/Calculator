@@ -25,7 +25,7 @@
         <activity
             android:name=".ui.DSMainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden">
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,6 +33,14 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.DSSearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.DSResultActivity"
+            android:screenOrientation="portrait" />
+
 
         <provider
             android:name=".provider.DownloadFileProvider"

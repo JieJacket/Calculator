@@ -1,16 +1,17 @@
 package com.jie.calculator.calculator.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.aspsine.irecyclerview.IRecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.ds.model.ali.TBKCouponRequest;
@@ -18,7 +19,7 @@ import com.jal.calculator.store.ds.network.AliServerManager;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.model.IModel;
-import com.jie.calculator.calculator.model.TBKGoodsItem;
+import com.jie.calculator.calculator.model.tbk.TBKGoodsItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +37,10 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnItemChildClickListener {
 
-    private RecyclerView rvGoods;
+    private IRecyclerView rvGoods;
 
     private static final String FID = "fid";
+    private int currentPage = 1;
 
     private long favoritesId;
     private String adzoneId;
@@ -82,21 +84,27 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
                 return Arrays.asList(Pair.create(TBKGoodsItem.TYPE, R.layout.goods_item_layout));
             }
         };
-        rvGoods.setAdapter(viewAdapter);
+        rvGoods.setIAdapter(viewAdapter);
 
         viewAdapter.setOnItemChildClickListener(this);
-
-        fetchFavoriteItem();
+        rvGoods.setLoadMoreEnabled(true);
+        rvGoods.setLoadMoreFooterView(R.layout.load_more_view);
+        rvGoods.setRefreshEnabled(false);
+        rvGoods.setOnLoadMoreListener(() -> fetchFavoriteItem(false));
+        fetchFavoriteItem(true);
     }
 
 
-    private void fetchFavoriteItem() {
+    private void fetchFavoriteItem(boolean isRefresh) {
         disposables.add(Observable.just(new TBKCouponRequest())
                 .map(request -> {
                     request.setAdzone_id(adzoneId);
                     request.setQ("女装");
-                    request.setPageNo(1);
-                    request.setPageSize(50);
+                    if (isRefresh) {
+                        currentPage = 0;
+                    }
+                    request.setPageNo(++currentPage);
+                    request.setPageSize(20);
 //                    request.setCat("16,18");
                     return request;
                 })
@@ -110,31 +118,41 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
                 .flatMap(Observable::fromIterable)
                 .map(TBKGoodsItem::new)
                 .toList()
+                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> viewAdapter.update(data),
+                .subscribe(data -> viewAdapter.update(data, isRefresh),
                         t -> {
                             t.printStackTrace();
                             Snackbar.make(rvGoods, "Something error", Snackbar.LENGTH_SHORT).show();
+                            rvGoods.setRefreshing(false);
+                        }, () -> {
+                            rvGoods.setRefreshing(false);
                         }));
     }
 
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         showDetails(position);
-//        if (DSManager.getInst().isAliAuth()){
+//        if (DSManager.getInst().isAliAuth()) {
 //        } else {
 //            disposables.add(DSManager.getInst().authLogin()
 //                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(e -> showDetails(position),Throwable::printStackTrace));
+//                    .subscribe(e -> showDetails(position), Throwable::printStackTrace));
 //        }
     }
 
-    private void showDetails(int position){
+    private void showDetails(int position) {
         IModel model = viewAdapter.getData().get(position);
         if (model instanceof TBKGoodsItem) {
             TBKGoodsItem item = (TBKGoodsItem) model;
             DSManager.getInst().showDetails(getActivity(), item.getItemResp().getCoupon_click_url());
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        DSManager.getInst().onAuthActivityResult(requestCode, resultCode, data);
     }
 }

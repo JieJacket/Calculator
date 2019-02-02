@@ -19,7 +19,6 @@ import java.util.List;
 public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private List<TBKFavoritesResp> data = new ArrayList<>();
-    private long adzone_id = 90648350087L;
 
 
     public MainPagerAdapter(FragmentManager fm) {

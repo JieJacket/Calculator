@@ -2,9 +2,12 @@ package com.jal.calculator.store.ds.network;
 
 import com.jal.calculator.store.ds.util.Constants;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -36,6 +39,10 @@ public class AliServerManager {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(5, TimeUnit.SECONDS)
+                .addInterceptor(chain -> {
+                    Response response = chain.proceed(chain.request());
+                    return response;
+                })
                 .build();
     }
 
