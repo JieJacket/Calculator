@@ -46,8 +46,8 @@ public class TBKGoodsItem implements IModel {
 
         GlideApp.with(ivPict.getContext())
                 .load(itemResp.getPict_url())
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .error(R.drawable.ic_launcher_foreground)
+                .placeholder(R.mipmap.ic_artboard)
+                .error(R.mipmap.ic_artboard)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(ivPict);

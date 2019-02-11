@@ -53,8 +53,8 @@ public class TBKSearchItem implements IModel {
 
         GlideApp.with(context)
                 .load(searchResp.getPict_url())
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .error(R.drawable.ic_launcher_foreground)
+                .placeholder(R.mipmap.ic_artboard)
+                .error(R.mipmap.ic_artboard)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into((ImageView) holder.getView(R.id.iv_pict));

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
-import com.jie.calculator.calculator.adapter.MainPagerAdapter;
+import com.jie.calculator.calculator.adapter.MainGoodsPagerAdapter;
 import com.jie.calculator.calculator.ui.DSSearchActivity;
 
 import io.reactivex.Observable;
@@ -35,7 +35,7 @@ public class DSMainFragment extends AbsFragment {
     private TabLayout tlTabs;
     private ViewPager vpContent;
     private TextView etSearch;
-    private MainPagerAdapter mainPagerAdapter;
+    private  MainGoodsPagerAdapter mainGoodsPagerAdapter;
 
 
     @Nullable
@@ -57,8 +57,8 @@ public class DSMainFragment extends AbsFragment {
         vpContent = view.findViewById(R.id.vp_content);
         etSearch = view.findViewById(R.id.et_top_search);
         tlTabs.setupWithViewPager(vpContent);
-        mainPagerAdapter = new MainPagerAdapter(getChildFragmentManager());
-        vpContent.setAdapter(mainPagerAdapter);
+        mainGoodsPagerAdapter = new MainGoodsPagerAdapter(getChildFragmentManager());
+        vpContent.setAdapter(mainGoodsPagerAdapter);
 
         etSearch.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -76,7 +76,7 @@ public class DSMainFragment extends AbsFragment {
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(data -> mainPagerAdapter.update(data), Throwable::printStackTrace));
+                .subscribe(data -> mainGoodsPagerAdapter.update(data), Throwable::printStackTrace));
     }
 
 }

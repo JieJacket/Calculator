@@ -83,7 +83,7 @@ public class RepositoryExecutor {
     }
 
     public Observable<List<String>> getData() {
-        return Observable.concat(getTempData(), getDataAsync())
+        return getTempData()
                 .filter(d -> !d.isEmpty())
                 .take(1)
                 .map(ArrayList::new);
@@ -93,7 +93,6 @@ public class RepositoryExecutor {
         Observable.just(hasChanged)
                 .filter(status -> status)
                 .map(status -> data)
-                .filter(d -> !d.isEmpty())
                 .doOnNext(list -> {
                     String json = new Gson().toJson(list);
                     preferences.edit().putString(key, json).apply();

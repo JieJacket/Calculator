@@ -4,23 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v4.view.ViewPager;
-import android.widget.TextView;
 
 import com.jal.calculator.store.ds.DSManager;
-import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
-import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
-import com.jie.calculator.calculator.adapter.MainPagerAdapter;
-import com.jie.calculator.calculator.util.SystemUtil;
+import com.jie.calculator.calculator.adapter.MainContentAdapter;
+import com.jie.calculator.calculator.model.MainPage;
+import com.jie.calculator.calculator.ui.fragment.DSMainFragment;
+import com.jie.calculator.calculator.ui.fragment.MineFragment;
 import com.jie.calculator.calculator.util.UpdateUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created on 2019/1/24.
@@ -30,12 +27,82 @@ import io.reactivex.schedulers.Schedulers;
 public class DSMainActivity extends BaseActivity {
 
 
+    private TabLayout tlBottomTabs;
+    private ViewPager vpMain;
+    private List<MainPage> pages = new ArrayList<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ds_main);
         UpdateUtils.getInst().register(this);
         UpdateUtils.getInst().checkVersion(this);
+        setupData();
+        initView();
+    }
+
+    private void setupData() {
+        MainPage main = new MainPage();
+        main.setTitle(getString(R.string.str_home));
+        main.setIcon(R.drawable.ic_main);
+        main.setFragment(new DSMainFragment());
+        pages.add(main);
+
+        MainPage mine = new MainPage();
+        mine.setTitle(getString(R.string.str_mine));
+        mine.setIcon(R.drawable.ic_mine);
+        mine.setFragment(new MineFragment());
+        pages.add(mine);
+
+    }
+
+    private void initView() {
+        tlBottomTabs = findViewById(R.id.tl_bottom_tabs);
+        vpMain = findViewById(R.id.vp_main_content);
+        MainContentAdapter contentAdapter = new MainContentAdapter(getSupportFragmentManager(), pages);
+        vpMain.setAdapter(contentAdapter);
+        Observable.fromIterable(pages)
+                .map(page -> {
+                    TabLayout.Tab tab = tlBottomTabs.newTab();
+                    tab.setIcon(page.getIcon());
+                    tab.setText(page.getTitle());
+                    tlBottomTabs.addTab(tab);
+                    return true;
+                })
+                .subscribe();
+
+        vpMain.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                tlBottomTabs.setScrollPosition(position, 0, true);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        tlBottomTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                vpMain.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     @Override

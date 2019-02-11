@@ -16,12 +16,12 @@ import java.util.List;
  *
  * @author Jie.Wu
  */
-public class MainPagerAdapter extends FragmentPagerAdapter {
+public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
 
     private List<TBKFavoritesResp> data = new ArrayList<>();
 
 
-    public MainPagerAdapter(FragmentManager fm) {
+    public MainGoodsPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 

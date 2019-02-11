@@ -17,7 +17,7 @@
             android:layout_height="100dp"
             android:layout_centerVertical="true"
             android:scaleType="centerCrop"
-            tools:src="@drawable/ic_launcher_foreground" />
+            tools:src="@mipmap/ic_artboard" />
 
         <RelativeLayout
             android:layout_width="match_parent"

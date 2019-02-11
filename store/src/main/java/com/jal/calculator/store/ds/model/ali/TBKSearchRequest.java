@@ -40,6 +40,11 @@ public class TBKSearchRequest extends AliBaseRequest {
     @SerializedName("include_rfd_rate")
     private boolean includeRfdRate;
 
+    /**
+     * 排序_des（降序），排序_asc（升序），销量（total_sales），
+     * 淘客佣金比率（tk_rate）， 累计推广量（tk_total_sales），
+     * 总支出佣金（tk_total_commi），价格（price）
+     */
     @SerializedName("sort")
     private String sort;
 
@@ -59,7 +64,7 @@ public class TBKSearchRequest extends AliBaseRequest {
         includeRfdRate = true;
         materialId = "6707";
         ip = ConvertUtil.getIP();
-        sort = "tk_rate_des";
+        sort = "total_sales";
         pageNo = 1;
         pageSize = 50;
     }

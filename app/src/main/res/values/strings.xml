@@ -35,4 +35,6 @@
     <string name="str_monthly_volume">月销%d</string>
     <string name="str_delete_alert">确认删除改历史记录？</string>
     <string name="str_confirm">确认</string>
+    <string name="str_home">首页</string>
+    <string name="str_mine">我的</string>
 </resources>
