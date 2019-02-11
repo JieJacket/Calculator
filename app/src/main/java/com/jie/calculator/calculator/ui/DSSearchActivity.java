@@ -24,7 +24,7 @@ import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
-import com.jie.calculator.calculator.cache.RepositoryExecutor;
+import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.DSSearchItem;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
@@ -47,7 +47,6 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
 
     private EditText etSearch;
     private RecyclerView rvSuggestions;
-    private RepositoryExecutor executor;
     private CommonRecyclerViewAdapter suggestionAdapter;
 
 
@@ -78,7 +77,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             String query = v.getText().toString().trim();
             if (!TextUtils.isEmpty(query)) {
-                executor.put(query);
+                HistorySearchManager.getInst().put(query);
             }
             goSearch(query);
             return true;
@@ -111,7 +110,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
         etSearch.clearFocus();
         etSearch.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null){
+        if (imm != null) {
             imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
         }
     }
@@ -128,7 +127,6 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     private void initOthers() {
         findViewById(R.id.iv_back).setOnClickListener(v -> onBackPressed());
         rvSuggestions = findViewById(R.id.rv_suggestions);
-        executor = new RepositoryExecutor("history-item", getApplicationContext());
         suggestionAdapter = new CommonRecyclerViewAdapter(new ArrayList<>()) {
             @NonNull
             @Override
@@ -148,7 +146,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
 
     private void showSuggestions() {
         requestFocus();
-        disposables.add(executor.getData()
+        disposables.add(HistorySearchManager.getInst().getData()
                 .flatMap(data -> {
                     if (!data.isEmpty()) {
                         return Observable.fromIterable(data);
@@ -179,7 +177,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     @Override
     protected void onStop() {
         super.onStop();
-        executor.save();
+        HistorySearchManager.getInst().save();
     }
 
     @Override
@@ -196,7 +194,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
                 .setMessage(R.string.str_delete_alert)
                 .setNegativeButton(R.string.str_cancel, null)
                 .setPositiveButton(R.string.str_confirm, (dialog, which) -> {
-                    executor.remove(history);
+                    HistorySearchManager.getInst().remove(history);
                     showSuggestions();
                 })
                 .setCancelable(false)

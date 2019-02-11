@@ -133,12 +133,12 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
 
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-        showDetails(position);
+//        showDetails(position);
 //        if (DSManager.getInst().isAliAuth()) {
 //        } else {
-//            disposables.add(DSManager.getInst().authLogin()
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(e -> showDetails(position), Throwable::printStackTrace));
+            disposables.add(DSManager.getInst().authLogin()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(e -> showDetails(position), Throwable::printStackTrace));
 //        }
     }
 

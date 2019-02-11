@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.jal.calculator.store.ds.BuildConfig;
 import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.ds.util.Constants;
 import com.jal.calculator.store.ds.util.CryptoUtils;
@@ -66,7 +67,7 @@ abstract class AliBaseRequest {
     String fields;
 
     @SerializedName("platform")
-    String platform  = Constants.DEFAULT_PLATFORM;
+    String platform = Constants.DEFAULT_PLATFORM;
 
     public AliBaseRequest() {
         v = "2.0";
@@ -93,21 +94,23 @@ abstract class AliBaseRequest {
         map.put("sign", sign);
 
         Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             Map.Entry<String, String> next = it.next();
-            if (TextUtils.isEmpty(next.getKey()) || TextUtils.isEmpty(next.getValue())){
+            if (TextUtils.isEmpty(next.getKey()) || TextUtils.isEmpty(next.getValue())) {
                 it.remove();
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("curl -X POST 'http://gw.api.taobao.com/router/rest' ")
-                .append("-H 'Content-Type:application/x-www-form-urlencoded;charset=utf-8' ");
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            sb.append("-d ").append(String.format(Locale.getDefault(), "'%s=%s' ", entry.getKey(), entry.getValue()));
-        }
+        if (BuildConfig.DEBUG) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("curl -X POST 'http://gw.api.taobao.com/router/rest' ")
+                    .append("-H 'Content-Type:application/x-www-form-urlencoded;charset=utf-8' ");
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                sb.append("-d ").append(String.format(Locale.getDefault(), "'%s=%s' ", entry.getKey(), entry.getValue()));
+            }
 
-        Log.e("AliBaseRequest", sb.toString());
+            Log.e("AliBaseRequest", sb.toString());
+        }
 
         return map;
     }

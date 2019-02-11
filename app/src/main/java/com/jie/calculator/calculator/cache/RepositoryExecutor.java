@@ -24,13 +24,17 @@ import io.reactivex.schedulers.Schedulers;
  *
  * @author Jie.Wu
  */
-public class RepositoryExecutor {
+public class RepositoryExecutor<T> {
 
     private final SharedPreferences preferences;
-    private Set<String> data = Collections.synchronizedSet(new LinkedHashSet<>());
+    private Set<T> data = Collections.synchronizedSet(new LinkedHashSet<>());
     private String key;
     private boolean hasChanged;
     private int maxSize = 20;
+
+    void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
 
     public RepositoryExecutor(@NonNull String key, @NonNull Context context) {
         this.key = key;
@@ -38,7 +42,7 @@ public class RepositoryExecutor {
         getDataAsync().subscribe(new EmptyObserver<>());
     }
 
-    private Observable<Set<String>> getDataAsync() {
+    private Observable<Set<T>> getDataAsync() {
         return Observable.just(preferences.getString(key, ""))
                 .filter(json -> !TextUtils.isEmpty(json))
                 .map(json -> {
@@ -53,7 +57,7 @@ public class RepositoryExecutor {
                 .subscribeOn(Schedulers.io());
     }
 
-    private Observable<Set<String>> getTempData() {
+    private Observable<Set<T>> getTempData() {
         return Observable.create(emitter -> {
             if (!emitter.isDisposed()) {
                 emitter.onNext(new LinkedHashSet<>(data));
@@ -62,11 +66,11 @@ public class RepositoryExecutor {
         });
     }
 
-    public void put(String v) {
+    public void put(T v) {
         if (v != null) {
             hasChanged = true;
             while (data.size() >= maxSize) {
-                ArrayList<String> temp = new ArrayList<>(data);
+                ArrayList<T> temp = new ArrayList<>(data);
                 temp.remove(0);
                 data.clear();
                 data.addAll(temp);
@@ -82,7 +86,7 @@ public class RepositoryExecutor {
         }
     }
 
-    public Observable<List<String>> getData() {
+    public Observable<List<T>> getData() {
         return getTempData()
                 .filter(d -> !d.isEmpty())
                 .take(1)

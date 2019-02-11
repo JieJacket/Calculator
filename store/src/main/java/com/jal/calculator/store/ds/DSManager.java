@@ -7,7 +7,11 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ali.auth.third.core.MemberSDK;
+import com.ali.auth.third.core.callback.InitResultCallback;
+import com.ali.auth.third.core.callback.LoginCallback;
 import com.ali.auth.third.core.model.Session;
+import com.ali.auth.third.login.LoginService;
 import com.ali.auth.third.ui.context.CallbackContext;
 import com.alibaba.baichuan.android.trade.AlibcTrade;
 import com.alibaba.baichuan.android.trade.AlibcTradeSDK;
@@ -19,7 +23,6 @@ import com.alibaba.baichuan.android.trade.page.AlibcPage;
 import com.alibaba.baichuan.trade.biz.context.AlibcTradeResult;
 import com.alibaba.baichuan.trade.biz.core.taoke.AlibcTaokeParams;
 import com.alibaba.baichuan.trade.biz.login.AlibcLogin;
-import com.alibaba.baichuan.trade.biz.login.AlibcLoginCallback;
 import com.jal.calculator.store.ds.util.Constants;
 
 import java.util.HashMap;
@@ -36,6 +39,7 @@ public class DSManager {
 
     private static final String TAG = "DSManager";
     private String session;
+    private Session authSession;
 
     private String pid;
     private String adzoneId;
@@ -67,6 +71,17 @@ public class DSManager {
                 Log.e(TAG, code + ":" + msg);
             }
         });
+        MemberSDK.init(context, new InitResultCallback() {
+            @Override
+            public void onSuccess() {
+                Log.e(TAG, "onSuccess");
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                Log.e(TAG, i + ":" + s);
+            }
+        });
         initBaseConfig(context.getApplicationContext());
     }
 
@@ -77,24 +92,26 @@ public class DSManager {
         }
     }
 
-    public Observable<Integer> authLogin() {
-        return Observable.just(AlibcLogin.getInstance())
-                .flatMap(alibcLogin -> Observable.create(e -> alibcLogin.showLogin(new AlibcLoginCallback() {
-                    @Override
-                    public void onSuccess(int i) {
-                        if (!e.isDisposed()) {
-                            e.onNext(i);
-                            e.onComplete();
-                        }
-                    }
+    public Observable<Boolean> authLogin() {
+        return Observable.just(MemberSDK.getService(LoginService.class))
+                .flatMap(loginService -> Observable.create(e -> loginService.auth(new LoginCallback() {
+                            @Override
+                            public void onSuccess(Session session) {
+                                if (!e.isDisposed() && loginService.checkSessionValid()) {
+                                    authSession = session;
+                                    e.onNext(true);
+                                    e.onComplete();
+                                }
+                            }
 
-                    @Override
-                    public void onFailure(int i, String s) {
-                        if (!e.isDisposed()) {
-                            e.onError(new RuntimeException(i + ":" + s));
-                        }
-                    }
-                })));
+                            @Override
+                            public void onFailure(int i, String s) {
+                                if (!e.isDisposed()) {
+                                    e.onError(new Throwable("Auth error :" + i + "-" + s));
+                                }
+                            }
+                        }))
+                );
     }
 
     public void onAuthActivityResult(int requestCode, int resultCode, Intent data) {

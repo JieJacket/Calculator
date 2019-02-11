@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 
 import com.jal.calculator.store.ds.DSManager;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainContentAdapter;
+import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.MainPage;
+import com.jie.calculator.calculator.push.UmengNotificationClickHandler;
 import com.jie.calculator.calculator.ui.fragment.DSMainFragment;
 import com.jie.calculator.calculator.ui.fragment.MineFragment;
 import com.jie.calculator.calculator.util.UpdateUtils;
@@ -39,6 +42,23 @@ public class DSMainActivity extends BaseActivity {
         UpdateUtils.getInst().checkVersion(this);
         setupData();
         initView();
+        dealWithIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        dealWithIntent(intent);
+    }
+
+    private void dealWithIntent(Intent intent) {
+        String query = intent.getStringExtra(UmengNotificationClickHandler.QUERY_KEY);
+        if (!TextUtils.isEmpty(query)) {
+            Intent queryIntent = new Intent(this, DSResultActivity.class);
+            queryIntent.putExtra(DSResultActivity.QUERY, query);
+            startActivity(queryIntent);
+            HistorySearchManager.getInst().put(query);
+        }
     }
 
     private void setupData() {
@@ -110,6 +130,7 @@ public class DSMainActivity extends BaseActivity {
         super.onDestroy();
         UpdateUtils.getInst().unregister(this);
         DSManager.getInst().destroy();
+        HistorySearchManager.getInst().save();
     }
 
     @Override

@@ -44,9 +44,15 @@ android {
     productFlavors {
         online {
             dimension "online"
+            buildConfigField "String", "CHANNEL", "\"online\""
         }
         leakbuild {
             dimension "online"
+            buildConfigField "String", "CHANNEL", "\"debug\""
+        }
+        pgy {
+            dimension "online"
+            buildConfigField "String", "CHANNEL", "\"pgy\""
         }
     }
 }
@@ -78,11 +84,12 @@ dependencies {
     implementation 'com.google.android:flexbox:1.0.0'
     implementation 'com.github.Aspsine:IRecyclerView:0.0.7'
     implementation project(':store')
+    implementation project(':push')
 }
 
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
+//configurations.all {
+//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+//}
 
 def createApkName(def variant) {
     def projectName = project.name

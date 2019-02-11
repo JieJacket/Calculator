@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jal.calculator.store.push.UsageHelper;
+
 import io.reactivex.disposables.CompositeDisposable;
 
 /**
@@ -39,11 +41,13 @@ public abstract class AbsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        UsageHelper.getInst().onPageStart(TAG);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        UsageHelper.getInst().onPageEnd(TAG);
     }
 
     @Override

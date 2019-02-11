@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.jie.calculator.calculator.R;
+import com.jal.calculator.store.push.Analysis;
+import com.jal.calculator.store.push.UsageHelper;
+import com.jie.calculator.calculator.util.ActivityStack;
 
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -21,12 +23,27 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ds_search);
+        Analysis.getInst().onAppStart();
+        ActivityStack.getInst().add(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        UsageHelper.getInst().onActivityResume(this);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UsageHelper.getInst().onActivityPause(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         disposables.clear();
+        ActivityStack.getInst().remove(this);
     }
 }
