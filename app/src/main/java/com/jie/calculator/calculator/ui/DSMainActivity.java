@@ -12,9 +12,11 @@ import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainContentAdapter;
 import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.MainPage;
+import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
 import com.jie.calculator.calculator.push.UmengNotificationClickHandler;
 import com.jie.calculator.calculator.ui.fragment.DSMainFragment;
 import com.jie.calculator.calculator.ui.fragment.MineFragment;
+import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.UpdateUtils;
 
 import java.util.ArrayList;
@@ -42,17 +44,17 @@ public class DSMainActivity extends BaseActivity {
         UpdateUtils.getInst().checkVersion(this);
         setupData();
         initView();
-        dealWithIntent(getIntent());
+        disposables.add(RxBus.getIns().toObservable(RxUpdateSuggestionEvent.class)
+                .subscribe(event -> dealWithIntent(event.query))
+        );
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        dealWithIntent(intent);
     }
 
-    private void dealWithIntent(Intent intent) {
-        String query = intent.getStringExtra(UmengNotificationClickHandler.QUERY_KEY);
+    private void dealWithIntent(String query) {
         if (!TextUtils.isEmpty(query)) {
             Intent queryIntent = new Intent(this, DSResultActivity.class);
             queryIntent.putExtra(DSResultActivity.QUERY, query);
@@ -94,12 +96,12 @@ public class DSMainActivity extends BaseActivity {
         vpMain.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                tlBottomTabs.setScrollPosition(position, 0, true);
+
             }
 
             @Override
             public void onPageSelected(int position) {
-
+                tlBottomTabs.getTabAt(position).select();
             }
 
             @Override

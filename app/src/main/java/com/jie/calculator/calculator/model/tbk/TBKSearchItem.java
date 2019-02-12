@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jal.calculator.store.ds.model.tbk.TBKSearchResp;
 import com.jie.calculator.calculator.R;
@@ -53,9 +54,10 @@ public class TBKSearchItem implements IModel {
 
         GlideApp.with(context)
                 .load(searchResp.getPict_url())
-                .placeholder(R.mipmap.ic_artboard)
-                .error(R.mipmap.ic_artboard)
+                .placeholder(R.drawable.ic_place_holder)
+                .error(R.drawable.ic_place_holder)
                 .centerCrop()
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into((ImageView) holder.getView(R.id.iv_pict));
 

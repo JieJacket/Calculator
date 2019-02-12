@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.jal.calculator.store.push.Analysis;
 import com.jal.calculator.store.push.UsageHelper;
-import com.jie.calculator.calculator.util.ActivityStack;
+import com.jie.calculator.calculator.util.ActivityCacheManager;
 
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -24,7 +24,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Analysis.getInst().onAppStart();
-        ActivityStack.getInst().add(this);
+        ActivityCacheManager.getInst().add(this);
     }
 
     @Override
@@ -44,6 +44,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         disposables.clear();
-        ActivityStack.getInst().remove(this);
+        ActivityCacheManager.getInst().remove(this);
     }
 }

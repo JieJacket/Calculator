@@ -8,6 +8,7 @@ import com.jal.calculator.store.ds.network.AliServerManager;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.rx_cache2.DynamicKey;
@@ -50,7 +51,13 @@ public class Repository {
                             }
                             return Observable.empty();
                         }),
-                new DynamicKey("TBKFavoritesItem:" + favoritesId), new EvictDynamicKey(update));
+                new DynamicKey(constructId(favoritesId,request)), new EvictDynamicKey(update));
+    }
+
+    private String constructId(long favoritesId, TBKFavoriteItemRequest request) {
+
+        return String.format(Locale.CHINA,"TBKFavoritesItem-%d-%d-%d-%s",favoritesId,
+                request.getPageNo(),request.getPageSize(),request.getAppKey());
     }
 
 

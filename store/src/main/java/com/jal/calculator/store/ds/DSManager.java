@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
-import com.ali.auth.third.core.MemberSDK;
-import com.ali.auth.third.core.callback.InitResultCallback;
-import com.ali.auth.third.core.callback.LoginCallback;
 import com.ali.auth.third.core.model.Session;
-import com.ali.auth.third.login.LoginService;
 import com.ali.auth.third.ui.context.CallbackContext;
 import com.alibaba.baichuan.android.trade.AlibcTrade;
 import com.alibaba.baichuan.android.trade.AlibcTradeSDK;
@@ -19,10 +18,14 @@ import com.alibaba.baichuan.android.trade.callback.AlibcTradeCallback;
 import com.alibaba.baichuan.android.trade.callback.AlibcTradeInitCallback;
 import com.alibaba.baichuan.android.trade.model.AlibcShowParams;
 import com.alibaba.baichuan.android.trade.model.OpenType;
+import com.alibaba.baichuan.android.trade.page.AlibcBasePage;
+import com.alibaba.baichuan.android.trade.page.AlibcMyOrdersPage;
 import com.alibaba.baichuan.android.trade.page.AlibcPage;
 import com.alibaba.baichuan.trade.biz.context.AlibcTradeResult;
 import com.alibaba.baichuan.trade.biz.core.taoke.AlibcTaokeParams;
 import com.alibaba.baichuan.trade.biz.login.AlibcLogin;
+import com.alibaba.baichuan.trade.biz.login.AlibcLoginCallback;
+import com.jal.calculator.store.ds.model.AliSessionWrapper;
 import com.jal.calculator.store.ds.util.Constants;
 
 import java.util.HashMap;
@@ -50,8 +53,6 @@ public class DSManager {
     private static final class LazyHolder {
 
         private static final DSManager instance = new DSManager();
-
-
     }
 
     public static DSManager getInst() {
@@ -71,17 +72,6 @@ public class DSManager {
                 Log.e(TAG, code + ":" + msg);
             }
         });
-        MemberSDK.init(context, new InitResultCallback() {
-            @Override
-            public void onSuccess() {
-                Log.e(TAG, "onSuccess");
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                Log.e(TAG, i + ":" + s);
-            }
-        });
         initBaseConfig(context.getApplicationContext());
     }
 
@@ -93,12 +83,12 @@ public class DSManager {
     }
 
     public Observable<Boolean> authLogin() {
-        return Observable.just(MemberSDK.getService(LoginService.class))
-                .flatMap(loginService -> Observable.create(e -> loginService.auth(new LoginCallback() {
+        return Observable.just(AlibcLogin.getInstance())
+                .flatMap(loginService -> Observable.create(e -> loginService.showLogin(new AlibcLoginCallback() {
+
                             @Override
-                            public void onSuccess(Session session) {
-                                if (!e.isDisposed() && loginService.checkSessionValid()) {
-                                    authSession = session;
+                            public void onSuccess(int i) {
+                                if (!e.isDisposed()) {
                                     e.onNext(true);
                                     e.onComplete();
                                 }
@@ -118,9 +108,25 @@ public class DSManager {
         CallbackContext.onActivityResult(requestCode, resultCode, data);
     }
 
-    public boolean isAliAuth() {
+    public boolean isLogin() {
+        return AlibcLogin.getInstance().isLogin();
+    }
+
+    public AliSessionWrapper getAliSession() {
+        AliSessionWrapper alSession = new AliSessionWrapper();
         Session session = AlibcLogin.getInstance().getSession();
-        return session != null && session.topAccessToken != null;
+        if (session != null) {
+            alSession.userid = session.userid;
+            alSession.nick = session.nick;
+            alSession.avatarUrl = session.avatarUrl;
+            alSession.openId = session.openId;
+            alSession.openSid = session.openSid;
+            alSession.topAccessToken = session.topAccessToken;
+            alSession.topAuthCode = session.topAuthCode;
+            alSession.topExpireTime = session.topExpireTime;
+        }
+
+        return alSession;
     }
 
     public void showDetails(Activity activity, String url) {
@@ -148,6 +154,23 @@ public class DSManager {
 
     }
 
+    public void openOrders(Activity context, int orderType, WebView webView, WebViewClient webViewClient,
+                           WebChromeClient webChromeClient) {
+        AlibcBasePage page = new AlibcMyOrdersPage(orderType, true);
+        AlibcTrade.show(context, webView, webViewClient, webChromeClient, page,
+                new AlibcShowParams(), null, null, new AlibcTradeCallback() {
+                    @Override
+                    public void onTradeSuccess(AlibcTradeResult alibcTradeResult) {
+                        Log.e(TAG, "openOrders onTradeSuccess");
+                    }
+
+                    @Override
+                    public void onFailure(int i, String s) {
+                        Log.e(TAG, i + ":" + s);
+                    }
+                });
+    }
+
 
     public void syncPublicConfig() {
         AlibcTaokeParams alibcTaokeParams = new AlibcTaokeParams(); // 若非淘客taokeParams设置为null即可
@@ -158,6 +181,7 @@ public class DSManager {
         alibcTaokeParams.extraParams.put("taokeAppkey", Constants.ALI_APP_KEY);
         AlibcTradeSDK.setTaokeParams(alibcTaokeParams);
         AlibcTradeSDK.setSyncForTaoke(true);
+        AlibcTradeSDK.setForceH5(false);
     }
 
 

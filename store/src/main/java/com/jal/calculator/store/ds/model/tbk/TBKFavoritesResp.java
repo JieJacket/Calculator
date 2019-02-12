@@ -7,15 +7,15 @@ package com.jal.calculator.store.ds.model.tbk;
  */
 public class TBKFavoritesResp {
 
-    private int favorites_id;
+    private long favorites_id;
     private String favorites_title;
-    private int type;
+    private long type;
 
-    public int getFavorites_id() {
+    public long getFavorites_id() {
         return favorites_id;
     }
 
-    public void setFavorites_id(int favorites_id) {
+    public void setFavorites_id(long favorites_id) {
         this.favorites_id = favorites_id;
     }
 
@@ -27,11 +27,11 @@ public class TBKFavoritesResp {
         this.favorites_title = favorites_title;
     }
 
-    public int getType() {
+    public long getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(long type) {
         this.type = type;
     }
 }

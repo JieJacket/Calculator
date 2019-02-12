@@ -43,8 +43,13 @@
             android:name=".ui.DSSearchActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.DSResultActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.DSOrderActivity"
             android:screenOrientation="portrait" />
 
 

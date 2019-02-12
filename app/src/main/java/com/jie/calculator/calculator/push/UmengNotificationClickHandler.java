@@ -6,7 +6,9 @@ import android.text.TextUtils;
 
 import com.jal.calculator.store.push.wrapper.NotificationClickHandlerWrapper;
 import com.jal.calculator.store.push.wrapper.UMessageWrapper;
+import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
 import com.jie.calculator.calculator.ui.DSMainActivity;
+import com.jie.calculator.calculator.util.RxBus;
 
 import java.util.Map;
 
@@ -38,8 +40,10 @@ public class UmengNotificationClickHandler extends NotificationClickHandlerWrapp
             if (TextUtils.equals(key, QUERY_KEY)) {
                 Intent intent = new Intent(context, DSMainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(QUERY_KEY, (String) value);
                 context.startActivity(intent);
+                RxUpdateSuggestionEvent event = new RxUpdateSuggestionEvent();
+                event.query = (String) value;
+                RxBus.getIns().postStickyEvent(event);
             }
         }
     }

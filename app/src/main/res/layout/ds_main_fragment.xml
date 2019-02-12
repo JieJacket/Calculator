@@ -44,4 +44,17 @@
         android:paddingRight="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/iv_go_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
+        android:layout_marginBottom="18dp"
+        android:background="@color/colorMain2"
+        android:src="@drawable/ic_taobao"
+        android:visibility="invisible"
+        app:layout_behavior="com.jie.calculator.calculator.widget.ScrollIndicatorBehavior" />
+
 </android.support.design.widget.CoordinatorLayout>

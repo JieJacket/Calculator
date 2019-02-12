@@ -12,18 +12,18 @@ import java.util.Set;
  *
  * @author Jie.Wu
  */
-public class ActivityStack {
+public class ActivityCacheManager {
 
     private final Set<BaseActivity> cached = new LinkedHashSet<>();
 
-    private ActivityStack() {
+    private ActivityCacheManager() {
     }
 
     private static final class LazyHolder {
-        private static final ActivityStack instance = new ActivityStack();
+        private static final ActivityCacheManager instance = new ActivityCacheManager();
     }
 
-    public static ActivityStack getInst() {
+    public static ActivityCacheManager getInst() {
         return LazyHolder.instance;
     }
 

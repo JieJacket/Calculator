@@ -9,7 +9,9 @@ import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
 import com.jie.calculator.calculator.ui.fragment.GoodsFragment;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 2019/1/25.
@@ -19,6 +21,7 @@ import java.util.List;
 public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
 
     private List<TBKFavoritesResp> data = new ArrayList<>();
+    private Map<Long, Fragment> fragments = new LinkedHashMap<>();
 
 
     public MainGoodsPagerAdapter(FragmentManager fm) {
@@ -28,7 +31,18 @@ public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         TBKFavoritesResp tbkFavoritesResp = data.get(position);
-        return GoodsFragment.newInstance(tbkFavoritesResp.getFavorites_id());
+        return getFragment(tbkFavoritesResp.getFavorites_id());
+    }
+
+    private Fragment getFragment(long favorites_id) {
+        Fragment fragment;
+        if ((fragment = fragments.get(favorites_id)) != null) {
+            return fragment;
+        }
+        fragment = GoodsFragment.newInstance(favorites_id);
+        fragments.put(favorites_id, fragment);
+
+        return fragment;
     }
 
     @Override

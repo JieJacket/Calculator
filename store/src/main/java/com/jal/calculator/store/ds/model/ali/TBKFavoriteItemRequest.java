@@ -25,7 +25,10 @@ public class TBKFavoriteItemRequest extends AliBaseRequest {
     public TBKFavoriteItemRequest() {
         pageNo = 1;
         pageSize = 20;
-        fields = "num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick,shop_title,zk_final_price_wap,event_start_time,event_end_time,tk_rate,status,type";
+        fields = "num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type," +
+                "provcity,item_url,seller_id,volume,nick,shop_title,zk_final_price_wap," +
+                "event_start_time,event_end_time,tk_rate,status,type,coupon_click_url," +
+                "coupon_end_time,coupon_info,coupon_start_time,coupon_total_count,coupon_remain_count";
         method = "taobao.tbk.uatm.favorites.item.get";
     }
 
@@ -43,5 +46,17 @@ public class TBKFavoriteItemRequest extends AliBaseRequest {
 
     public void setFavoritesId(long favoritesId) {
         this.favoritesId = favoritesId;
+    }
+
+    public int getPageNo() {
+        return pageNo;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public String getAdzone_id() {
+        return adzone_id;
     }
 }

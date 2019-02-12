@@ -6,28 +6,33 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.aspsine.irecyclerview.IRecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jal.calculator.store.ds.DSManager;
-import com.jal.calculator.store.ds.model.ali.TBKCouponRequest;
-import com.jal.calculator.store.ds.network.AliServerManager;
+import com.jal.calculator.store.ds.model.ali.TBKFavoriteItemRequest;
+import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.model.IModel;
+import com.jie.calculator.calculator.model.tbk.TBKFavoriteItem;
 import com.jie.calculator.calculator.model.tbk.TBKGoodsItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
 
 
 /**
@@ -37,7 +42,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnItemChildClickListener {
 
-    private IRecyclerView rvGoods;
+    private RecyclerView rvGoods;
 
     private static final String FID = "fid";
     private int currentPage = 1;
@@ -45,6 +50,7 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
     private long favoritesId;
     private String adzoneId;
     private CommonRecyclerViewAdapter viewAdapter;
+    private GridLayoutManager goodsLayoutManager;
 
     public static GoodsFragment newInstance(long favoritesId) {
         GoodsFragment goodsFragment = new GoodsFragment();
@@ -75,78 +81,83 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
             favoritesId = bundle.getLong(FID);
         }
         adzoneId = DSManager.getInst().getAdzoneId();
+        initContent(view);
+        fetchFavoriteItem(true);
+    }
+
+    private void initContent(View view) {
         rvGoods = view.findViewById(R.id.rv_goods);
-        rvGoods.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        goodsLayoutManager = new GridLayoutManager(getActivity(),2);
+        rvGoods.setLayoutManager(goodsLayoutManager);
         viewAdapter = new CommonRecyclerViewAdapter(new ArrayList<>()) {
             @NonNull
             @Override
             protected List<Pair<Integer, Integer>> bindItemTypes() {
-                return Arrays.asList(Pair.create(TBKGoodsItem.TYPE, R.layout.goods_item_layout));
+                return Collections.singletonList(Pair.create(TBKGoodsItem.TYPE, R.layout.goods_item_layout));
             }
         };
-        rvGoods.setIAdapter(viewAdapter);
+        rvGoods.setAdapter(viewAdapter);
 
         viewAdapter.setOnItemChildClickListener(this);
-        rvGoods.setLoadMoreEnabled(true);
-        rvGoods.setLoadMoreFooterView(R.layout.load_more_view);
-        rvGoods.setRefreshEnabled(false);
-        rvGoods.setOnLoadMoreListener(() -> fetchFavoriteItem(false));
-        fetchFavoriteItem(true);
+        viewAdapter.setOnLoadMoreListener(() -> fetchFavoriteItem(false), rvGoods);
+//        rvGoods.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                goodsLayoutManager.invalidateSpanAssignments();
+//            }
+//        });
+//        goodsLayoutManager.setGapStrategy(GAP_HANDLING_NONE);
+
     }
 
 
     private void fetchFavoriteItem(boolean isRefresh) {
-        disposables.add(Observable.just(new TBKCouponRequest())
+        disposables.add(Observable.just(new TBKFavoriteItemRequest())
                 .map(request -> {
                     request.setAdzone_id(adzoneId);
-                    request.setQ("女装");
                     if (isRefresh) {
                         currentPage = 0;
                     }
                     request.setPageNo(++currentPage);
                     request.setPageSize(20);
+                    request.setFavoritesId(favoritesId);
 //                    request.setCat("16,18");
                     return request;
                 })
-                .flatMap(request -> AliServerManager.getInst().getServer().getCouponGoods(request.signRequest()))
-                .flatMap(resp -> {
-                    if (resp != null && resp.getResults() != null) {
-                        return Observable.just(resp.getResults());
-                    }
-                    return Observable.empty();
-                })
+                .flatMap(request -> CTApplication.getRepository().getTBKFavoritesItem(false, favoritesId, request))
                 .flatMap(Observable::fromIterable)
-                .map(TBKGoodsItem::new)
+                .map(TBKFavoriteItem::new)
                 .toList()
                 .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> viewAdapter.update(data, isRefresh),
+                .subscribe(data -> {
+                            viewAdapter.update(data, isRefresh);
+                            viewAdapter.setEnableLoadMore(isRefresh || !data.isEmpty());
+                        },
                         t -> {
                             t.printStackTrace();
                             Snackbar.make(rvGoods, "Something error", Snackbar.LENGTH_SHORT).show();
-                            rvGoods.setRefreshing(false);
-                        }, () -> {
-                            rvGoods.setRefreshing(false);
-                        }));
+                            viewAdapter.loadMoreComplete();
+                        }, () -> viewAdapter.loadMoreComplete()));
     }
 
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-//        showDetails(position);
-//        if (DSManager.getInst().isAliAuth()) {
-//        } else {
-            disposables.add(DSManager.getInst().authLogin()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(e -> showDetails(position), Throwable::printStackTrace));
-//        }
+        showDetails(position);
     }
 
     private void showDetails(int position) {
         IModel model = viewAdapter.getData().get(position);
-        if (model instanceof TBKGoodsItem) {
-            TBKGoodsItem item = (TBKGoodsItem) model;
-            DSManager.getInst().showDetails(getActivity(), item.getItemResp().getCoupon_click_url());
+        if (model instanceof TBKFavoriteItem) {
+            TBKFavoriteItem item = (TBKFavoriteItem) model;
+            String couponUrl = item.getItemResp().getCoupon_click_url();
+            String itemUrl = item.getItemResp().getItem_url();
+            if (TextUtils.isEmpty(couponUrl)) {
+                couponUrl = itemUrl;
+            }
+            DSManager.getInst().showDetails(getActivity(), couponUrl);
         }
     }
 
@@ -154,5 +165,22 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         DSManager.getInst().onAuthActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void scrollTo(State state) {
+        if (goodsLayoutManager == null) {
+            return;
+        }
+        switch (state) {
+            case TOP:
+                goodsLayoutManager.scrollToPositionWithOffset(0, 0);
+                break;
+            case BOTTOM:
+                goodsLayoutManager.scrollToPositionWithOffset(viewAdapter.getItemCount(), 0);
+                break;
+            default:
+                break;
+        }
     }
 }

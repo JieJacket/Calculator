@@ -6,4 +6,5 @@ package com.jie.calculator.calculator.model.rx;
  * @author Jie.Wu
  */
 public class RxUpdateSuggestionEvent {
+    public String query;
 }

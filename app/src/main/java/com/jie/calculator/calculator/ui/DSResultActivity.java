@@ -4,18 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aspsine.irecyclerview.IRecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.loadmore.SimpleLoadMoreView;
 import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.ds.model.ali.TBKSearchRequest;
 import com.jal.calculator.store.ds.model.tbk.TBKSearchResp;
@@ -27,12 +29,12 @@ import com.jie.calculator.calculator.adapter.RecycleViewDivider;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
 import com.jie.calculator.calculator.model.tbk.TBKSearchItem;
-import com.jie.calculator.calculator.util.ActivityStack;
+import com.jie.calculator.calculator.util.ActivityCacheManager;
 import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.SystemUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -49,11 +51,13 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
     public static final String QUERY = "query";
     private CommonRecyclerViewAdapter searchAdapter;
     private SwipeRefreshLayout srlSearch;
-    private IRecyclerView rvSearchResult;
+    private RecyclerView rvSearchResult;
     private int currentPage = 1;
 
     private String query;
     private TextView tvSearch;
+
+    private int limit;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,21 +80,40 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
     }
 
     private void initSearchResult() {
+        limit = (int) (SystemUtil.getScreenHeight(getApplicationContext()) * 2.0f / 2);
         rvSearchResult = findViewById(R.id.rv_search_result);
         searchAdapter = new CommonRecyclerViewAdapter(new ArrayList<>()) {
             @NonNull
             @Override
             protected List<Pair<Integer, Integer>> bindItemTypes() {
-                return Arrays.asList(Pair.create(TBKSearchItem.TYPE, R.layout.search_result_item));
+                return Collections.singletonList(Pair.create(TBKSearchItem.TYPE, R.layout.search_result_item));
             }
         };
-        rvSearchResult.setIAdapter(searchAdapter);
-        rvSearchResult.setLayoutManager(new LinearLayoutManager(this));
+        rvSearchResult.setAdapter(searchAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvSearchResult.setLayoutManager(layoutManager);
         searchAdapter.setOnItemChildClickListener(this);
         rvSearchResult.addItemDecoration(new RecycleViewDivider(this,
                 LinearLayoutManager.VERTICAL, R.drawable.search_item_divider));
-        rvSearchResult.setRefreshEnabled(false);
-        rvSearchResult.setOnLoadMoreListener(() -> goSearch(query, false));
+        searchAdapter.setOnLoadMoreListener(() -> goSearch(query, false), rvSearchResult);
+        FloatingActionButton actionButton = findViewById(R.id.iv_go_top);
+        actionButton.setOnClickListener(v -> layoutManager.scrollToPositionWithOffset(0, 0));
+        rvSearchResult.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int offset = recyclerView.computeVerticalScrollOffset();
+                if (offset > limit) {
+                    actionButton.show();
+                } else {
+                    actionButton.hide();
+                }
+            }
+        });
+
+        searchAdapter.setEnableLoadMore(true);
+        searchAdapter.setLoadMoreView(new SimpleLoadMoreView());
+
     }
 
     private void initRefresh() {
@@ -103,8 +126,6 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
 
         tvSearch.setText(query);
         srlSearch.post(() -> srlSearch.setRefreshing(true));
-        rvSearchResult.setLoadMoreEnabled(true);
-        rvSearchResult.setRefreshing(false);
     }
 
     private void goSearch(String query, boolean refresh) {
@@ -144,11 +165,12 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
                     currentPage--;
                     Snackbar.make(rvSearchResult, "Something error", Snackbar.LENGTH_SHORT).show();
                     srlSearch.setRefreshing(false);
-                    rvSearchResult.setRefreshing(false);
+                    searchAdapter.loadMoreComplete();
                 }, () -> {
-                    rvSearchResult.setLoadMoreFooterView(R.layout.load_more_view);
+//                    rvSearchResult.setLoadMoreFooterView(R.layout.load_more_view);
                     srlSearch.setRefreshing(false);
-                    rvSearchResult.setRefreshing(false);
+//                    rvSearchResult.setRefreshing(false);
+                    searchAdapter.loadMoreComplete();
                 }));
 
     }
@@ -177,7 +199,7 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
 
     @Override
     public void onBackPressed() {
-        if (!ActivityStack.getInst().contain(DSSearchActivity.class)) {
+        if (!ActivityCacheManager.getInst().contain(DSSearchActivity.class)) {
             //noinspection unchecked
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
                     android.support.v4.util.Pair.create(tvSearch, getString(R.string.str_search_transition)));

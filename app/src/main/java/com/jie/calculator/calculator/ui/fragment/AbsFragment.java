@@ -19,6 +19,10 @@ import io.reactivex.disposables.CompositeDisposable;
  */
 public abstract class AbsFragment extends Fragment {
 
+    public enum State {
+        TOP, BOTTOM, LEFT, RIGHT
+    }
+
     CompositeDisposable disposables = new CompositeDisposable();
     protected final String TAG = getClass().getSimpleName();
 
@@ -54,6 +58,10 @@ public abstract class AbsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         disposables.clear();
+    }
+
+    public void scrollTo(State state) {
+
     }
 
     @Override

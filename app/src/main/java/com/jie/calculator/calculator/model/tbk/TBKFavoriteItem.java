@@ -1,17 +1,20 @@
 package com.jie.calculator.calculator.model.tbk;
 
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.DrawableTransformation;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
 import com.jie.calculator.calculator.R;
@@ -23,17 +26,17 @@ import com.jie.calculator.calculator.provider.GlideApp;
  *
  * @author Jie.Wu
  */
-public class TBKGoodsItem implements IModel {
+public class TBKFavoriteItem implements IModel {
 
     public static final int TYPE = 0x112;
 
     private TBKFavoritesItemResp itemResp;
 
-    public TBKGoodsItem(TBKFavoritesItemResp itemResp) {
+    public TBKFavoriteItem(TBKFavoritesItemResp itemResp) {
         this.itemResp = itemResp;
     }
 
-    private static int size = -1;
+    private static int width = -1;
 
     @Override
     public void convert(BaseViewHolder holder) {
@@ -55,12 +58,29 @@ public class TBKGoodsItem implements IModel {
                 .centerCrop()
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        if (width > 0 ){
+                            int w = resource.getIntrinsicWidth();
+                            int h = resource.getIntrinsicHeight();
+                            int height = (int) (h * width * 1.0f / w);
+                            resize(width, height, ivPict);
+                        }
+                        return false;
+                    }
+                })
                 .into(ivPict);
     }
 
     private void limitImageSize(ImageView ivPict) {
-        if (size > 0) {
-            resize(size, ivPict);
+        if (width > 0) {
+            resize(width, ivPict);
             return;
         }
         ivPict.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -69,8 +89,8 @@ public class TBKGoodsItem implements IModel {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     ivPict.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
-                size = ivPict.getWidth();
-                resize(size, ivPict);
+                width = ivPict.getWidth();
+                resize(width, ivPict);
             }
         });
     }
@@ -79,6 +99,12 @@ public class TBKGoodsItem implements IModel {
         ViewGroup.LayoutParams params = ivPict.getLayoutParams();
         params.width = size;
         params.height = size;
+    }
+
+    private void resize(int w, int h, View ivPict) {
+        ViewGroup.LayoutParams params = ivPict.getLayoutParams();
+        params.width = w;
+        params.height = h;
     }
 
     @Override
