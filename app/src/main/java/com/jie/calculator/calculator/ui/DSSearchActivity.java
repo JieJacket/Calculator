@@ -101,8 +101,12 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
 
             @Override
             public void afterTextChanged(Editable s) {
+                etSearch.setError(null);
                 ivClear.setVisibility(s == null || TextUtils.isEmpty(s.toString()) ? View.GONE : View.VISIBLE);
             }
+        });
+        findViewById(R.id.tv_search).setOnClickListener(v -> {
+            goSearch(etSearch.getText().toString());
         });
     }
 
@@ -116,6 +120,10 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     }
 
     private void goSearch(String query) {
+        if (TextUtils.isEmpty(query)) {
+            etSearch.setError("搜索内容不能为空");
+            return;
+        }
         Intent intent = new Intent(this, DSResultActivity.class);
         intent.putExtra(DSResultActivity.QUERY, query);
         //noinspection unchecked

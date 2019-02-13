@@ -5,8 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
-import com.jie.calculator.calculator.ui.fragment.GoodsFragment;
+import com.jal.calculator.store.ds.model.MaterialInfo;
+import com.jie.calculator.calculator.model.DSMainTab;
+import com.jie.calculator.calculator.ui.fragment.MaterialFragment;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,8 +21,8 @@ import java.util.Map;
  */
 public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
 
-    private List<TBKFavoritesResp> data = new ArrayList<>();
-    private Map<Long, Fragment> fragments = new LinkedHashMap<>();
+    private List<DSMainTab> data = new ArrayList<>();
+    private Map<String, Fragment> fragments = new LinkedHashMap<>();
 
 
     public MainGoodsPagerAdapter(FragmentManager fm) {
@@ -30,17 +31,17 @@ public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        TBKFavoritesResp tbkFavoritesResp = data.get(position);
-        return getFragment(tbkFavoritesResp.getFavorites_id());
+        DSMainTab tab = data.get(position);
+        return tab.getFragment();
     }
 
-    private Fragment getFragment(long favorites_id) {
+    private Fragment getFragment(MaterialInfo info) {
         Fragment fragment;
-        if ((fragment = fragments.get(favorites_id)) != null) {
+        if ((fragment = fragments.get(info.materialId)) != null) {
             return fragment;
         }
-        fragment = GoodsFragment.newInstance(favorites_id);
-        fragments.put(favorites_id, fragment);
+        fragment = MaterialFragment.newInstance(info);
+        fragments.put(info.materialId, fragment);
 
         return fragment;
     }
@@ -53,18 +54,29 @@ public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        TBKFavoritesResp resp = data.get(position);
-        return resp.getFavorites_title();
+        DSMainTab resp = data.get(position);
+        return resp.getTabTitle();
     }
 
-    public void update(List<TBKFavoritesResp> data) {
+    public void update(List<DSMainTab> data) {
         if (data != this.data) {
             this.data.clear();
             if (data != null) {
                 this.data.addAll(data);
             }
         }
-
         notifyDataSetChanged();
     }
+
+
+    public void addNewTabs(List<DSMainTab> data) {
+        if (data != this.data) {
+            if (data != null) {
+                this.data.addAll(data);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+
 }

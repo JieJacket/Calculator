@@ -2,6 +2,7 @@ package com.jal.calculator.store.ds.util;
 
 import com.google.gson.GsonBuilder;
 
+import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -40,5 +41,29 @@ public class ConvertUtil {
         } catch (Exception e) {
         }
         return ret;
+    }
+
+    public static <T> ObservableTransformer<T, T> handleUrl() {
+        return upstream -> upstream.map(t -> {
+            Field[] fields = t.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String name = field.getName();
+                Class<?> type = field.getType();
+                if (type == String.class && name.toLowerCase().contains("url")) {
+                    Object value = field.get(t);
+                    if (value instanceof String) {
+                        String url = (String) value;
+                        if (!url.startsWith("http:")) {
+                            url = "http:" + url;
+                            field.set(t, url);
+                        }
+                    }
+                }
+            }
+
+            return t;
+        });
+
     }
 }

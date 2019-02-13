@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
+        app:elevation="0dp"
         android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -28,21 +29,35 @@
                     style="@style/Main_Search_Edit"
                     android:hint="@string/str_search_hint" />
 
-                <include layout="@layout/tab_layout" />
             </LinearLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
 
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vp_content"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include layout="@layout/tab_layout" />
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/vp_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp" />
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/iv_go_top"
@@ -53,7 +68,7 @@
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
         android:src="@drawable/ic_goto_top"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_behavior="com.jie.calculator.calculator.widget.ScrollIndicatorBehavior" />
 
 </android.support.design.widget.CoordinatorLayout>

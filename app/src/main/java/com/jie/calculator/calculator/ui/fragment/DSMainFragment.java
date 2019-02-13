@@ -18,9 +18,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
+import com.jal.calculator.store.ds.util.Constants;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainGoodsPagerAdapter;
+import com.jie.calculator.calculator.model.DSMainTab;
 import com.jie.calculator.calculator.ui.DSSearchActivity;
 import com.jie.calculator.calculator.widget.ScrollIndicatorBehavior;
 
@@ -52,6 +54,7 @@ public class DSMainFragment extends AbsFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
+        loadTabs();
         fetchFavList();
     }
 
@@ -85,18 +88,29 @@ public class DSMainFragment extends AbsFragment {
     private void hiddenTopIndicator(FloatingActionButton fab) {
         CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
         CoordinatorLayout.Behavior behavior = layoutParams.getBehavior();
-        if (behavior instanceof ScrollIndicatorBehavior){
+        if (behavior instanceof ScrollIndicatorBehavior) {
             ((ScrollIndicatorBehavior) behavior).hide(fab);
         }
+    }
+
+    private void loadTabs() {
+        disposables.add(
+                Observable.fromIterable(Constants.materials)
+                        .map(mi -> DSMainTab.create(mi.name, MaterialFragment.newInstance(mi)))
+                        .toList()
+                        .subscribe(data -> mainGoodsPagerAdapter.update(data),Throwable::printStackTrace)
+        );
     }
 
     private void fetchFavList() {
         disposables.add(CTApplication.getRepository().getTBKFavoritesCategory(false, new TBKFavoriteListRequest())
                 .flatMap(Observable::fromIterable)
+                .map(resp -> DSMainTab.create(resp.getFavorites_title(),GoodsFragment.newInstance(resp.getFavorites_id())))
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(data -> mainGoodsPagerAdapter.update(data), Throwable::printStackTrace));
+                .subscribe(data -> mainGoodsPagerAdapter.addNewTabs(data), Throwable::printStackTrace));
     }
+
 
 }

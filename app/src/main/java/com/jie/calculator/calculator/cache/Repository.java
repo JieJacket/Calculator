@@ -2,8 +2,10 @@ package com.jie.calculator.calculator.cache;
 
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteItemRequest;
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
+import com.jal.calculator.store.ds.model.ali.TBKMaterialRequest;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
+import com.jal.calculator.store.ds.model.tbk.TBKMaterialsResp;
 import com.jal.calculator.store.ds.network.AliServerManager;
 
 import java.io.File;
@@ -51,13 +53,29 @@ public class Repository {
                             }
                             return Observable.empty();
                         }),
-                new DynamicKey(constructId(favoritesId,request)), new EvictDynamicKey(update));
+                new DynamicKey(constructId(favoritesId, request)), new EvictDynamicKey(update));
+    }
+
+    public Observable<List<TBKMaterialsResp>> getMaterialInfo(boolean update, TBKMaterialRequest request) {
+        return cacheProviders.getMaterialInfo(AliServerManager.getInst().getServer()
+                        .searchMaterial(request.signRequest())
+                        .flatMap(resp -> {
+                            if (resp != null && resp.getResultList() != null) {
+                                return Observable.just(resp.getResultList());
+                            }
+                            return Observable.empty();
+                        }),
+                new DynamicKey(constructId(request)), new EvictDynamicKey(update));
     }
 
     private String constructId(long favoritesId, TBKFavoriteItemRequest request) {
+        return String.format(Locale.CHINA, "TBKFavoritesItem-%d-%d-%d-%s", favoritesId,
+                request.getPageNo(), request.getPageSize(), request.getAppKey());
+    }
 
-        return String.format(Locale.CHINA,"TBKFavoritesItem-%d-%d-%d-%s",favoritesId,
-                request.getPageNo(),request.getPageSize(),request.getAppKey());
+    private String constructId(TBKMaterialRequest request) {
+        return String.format(Locale.CHINA, "TBKMaterialItem-%s-%d-%d-%s", request.getMaterialId(),
+                request.getPageNo(), request.getPageSize(), request.getAppKey());
     }
 
 

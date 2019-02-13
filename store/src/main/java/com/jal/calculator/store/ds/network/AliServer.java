@@ -3,6 +3,7 @@ package com.jal.calculator.store.ds.network;
 import com.jal.calculator.store.ds.model.tbk.TBKBaseResp;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
 import com.jal.calculator.store.ds.model.tbk.TBKFavoritesResp;
+import com.jal.calculator.store.ds.model.tbk.TBKMaterialsResp;
 import com.jal.calculator.store.ds.model.tbk.TBKSearchResp;
 
 import java.util.Map;
@@ -39,6 +40,11 @@ public interface AliServer {
     @POST("rest")
     @FormUrlEncoded
     Observable<TBKBaseResp<TBKSearchResp>> searchGoods(@FieldMap Map<String, String> request);
+
+    @Headers({"Content-Type:application/x-www-form-urlencoded;charset=utf-8"})
+    @POST("rest")
+    @FormUrlEncoded
+    Observable<TBKBaseResp<TBKMaterialsResp>> searchMaterial(@FieldMap Map<String, String> request);
 
 
 }

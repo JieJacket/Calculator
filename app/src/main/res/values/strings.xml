@@ -40,4 +40,5 @@
     <string name="str_login_with_taobao">淘宝登录</string>
     <string name="str_retry">重试</string>
     <string name="str_orders">我的订单</string>
+    <string name="str_search">搜索</string>
 </resources>
