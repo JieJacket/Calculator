@@ -97,7 +97,10 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
                 LinearLayoutManager.VERTICAL, R.drawable.search_item_divider));
         searchAdapter.setOnLoadMoreListener(() -> goSearch(query, false), rvSearchResult);
         FloatingActionButton actionButton = findViewById(R.id.iv_go_top);
-        actionButton.setOnClickListener(v -> layoutManager.scrollToPositionWithOffset(0, 0));
+        actionButton.setOnClickListener(v -> {
+            layoutManager.scrollToPositionWithOffset(0, 0);
+            actionButton.hide();
+        });
         rvSearchResult.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -111,7 +114,6 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
             }
         });
 
-        searchAdapter.setEnableLoadMore(true);
         searchAdapter.setLoadMoreView(new SimpleLoadMoreView());
 
     }
@@ -157,20 +159,21 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
                     if (result == null || result.isEmpty()) {
                         currentPage--;
                         Snackbar.make(rvSearchResult, "没有搜索到需要的商品", Snackbar.LENGTH_SHORT).show();
+                        if (!refresh) {
+                            searchAdapter.loadMoreEnd();
+                        }
                     } else {
                         searchAdapter.update(result, refresh);
                     }
+                    srlSearch.setRefreshing(false);
                 }, t -> {
                     t.printStackTrace();
                     currentPage--;
                     Snackbar.make(rvSearchResult, "Something error", Snackbar.LENGTH_SHORT).show();
                     srlSearch.setRefreshing(false);
-                    searchAdapter.loadMoreComplete();
-                }, () -> {
-//                    rvSearchResult.setLoadMoreFooterView(R.layout.load_more_view);
-                    srlSearch.setRefreshing(false);
-//                    rvSearchResult.setRefreshing(false);
-                    searchAdapter.loadMoreComplete();
+                    if (!refresh) {
+                        searchAdapter.loadMoreFail();
+                    }
                 }));
 
     }

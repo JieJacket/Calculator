@@ -16,12 +16,12 @@ public class MateialDesignLoadMoreView extends LoadMoreView {
 
     @Override
     protected int getLoadingViewId() {
-        return 0;
+        return R.id.load_more_loading_view;
     }
 
     @Override
     protected int getLoadFailViewId() {
-        return 0;
+        return R.id.load_more_load_fail_view;
     }
 
     @Override

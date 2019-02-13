@@ -4,7 +4,17 @@
     android:layout_height="48dp">
 
     <ProgressBar
+        android:id="@+id/load_more_loading_view"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="center" />
+
+    <ImageView
+        android:id="@+id/load_more_load_fail_view"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_loading_retry"
+        android:visibility="gone" />
+
 </FrameLayout>

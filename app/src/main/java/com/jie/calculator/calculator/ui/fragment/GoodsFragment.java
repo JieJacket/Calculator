@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
@@ -23,6 +22,7 @@ import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.tbk.TBKFavoriteItem;
 import com.jie.calculator.calculator.model.tbk.TBKGoodsItem;
+import com.jie.calculator.calculator.widget.MateialDesignLoadMoreView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,9 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
     private long favoritesId;
     private String adzoneId;
     private CommonRecyclerViewAdapter viewAdapter;
-    private GridLayoutManager goodsLayoutManager;
+    private StaggeredGridLayoutManager goodsLayoutManager;
+
+    private static final int DEFAULE_LOAD_SIZE = 20;
 
     public static GoodsFragment newInstance(long favoritesId) {
         GoodsFragment goodsFragment = new GoodsFragment();
@@ -87,7 +89,7 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
 
     private void initContent(View view) {
         rvGoods = view.findViewById(R.id.rv_goods);
-        goodsLayoutManager = new GridLayoutManager(getActivity(),2);
+        goodsLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         rvGoods.setLayoutManager(goodsLayoutManager);
         viewAdapter = new CommonRecyclerViewAdapter(new ArrayList<>()) {
             @NonNull
@@ -97,7 +99,7 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
             }
         };
         rvGoods.setAdapter(viewAdapter);
-
+        viewAdapter.setLoadMoreView(new MateialDesignLoadMoreView());
         viewAdapter.setOnItemChildClickListener(this);
         viewAdapter.setOnLoadMoreListener(() -> fetchFavoriteItem(false), rvGoods);
 //        rvGoods.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -107,7 +109,7 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
 //                goodsLayoutManager.invalidateSpanAssignments();
 //            }
 //        });
-//        goodsLayoutManager.setGapStrategy(GAP_HANDLING_NONE);
+        goodsLayoutManager.setGapStrategy(GAP_HANDLING_NONE);
 
     }
 
@@ -120,7 +122,7 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
                         currentPage = 0;
                     }
                     request.setPageNo(++currentPage);
-                    request.setPageSize(20);
+                    request.setPageSize(DEFAULE_LOAD_SIZE);
                     request.setFavoritesId(favoritesId);
 //                    request.setCat("16,18");
                     return request;
@@ -134,13 +136,15 @@ public class GoodsFragment extends AbsFragment implements BaseQuickAdapter.OnIte
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                             viewAdapter.update(data, isRefresh);
-                            viewAdapter.setEnableLoadMore(isRefresh || !data.isEmpty());
+                            if (!isRefresh && data.isEmpty()) {
+                                viewAdapter.loadMoreEnd();
+                            }
                         },
                         t -> {
                             t.printStackTrace();
                             Snackbar.make(rvGoods, "Something error", Snackbar.LENGTH_SHORT).show();
                             viewAdapter.loadMoreComplete();
-                        }, () -> viewAdapter.loadMoreComplete()));
+                        }));
     }
 
     @Override

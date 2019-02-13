@@ -52,7 +52,6 @@ public class ScrollIndicatorBehavior extends CoordinatorLayout.Behavior<View> {
     @Override
     public void onNestedPreScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull View child, @NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type);
-
         if (isOverLimit(dy, target)) {
             show(child);
         } else {
@@ -112,7 +111,7 @@ public class ScrollIndicatorBehavior extends CoordinatorLayout.Behavior<View> {
                 });
     }
 
-    private void hide(View view) {
+    public void hide(View view) {
         if (view.getVisibility() != View.VISIBLE || isAnimated) {
             return;
         }

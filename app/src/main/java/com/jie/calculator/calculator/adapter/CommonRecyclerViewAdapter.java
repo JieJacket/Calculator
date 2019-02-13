@@ -7,6 +7,7 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jie.calculator.calculator.model.IModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,14 +37,14 @@ public abstract class CommonRecyclerViewAdapter extends BaseMultiItemQuickAdapte
     }
 
     public void update(List<? extends IModel> data, boolean needClear) {
-        if (mData != data) {
-            if (needClear) {
-                mData.clear();
+        if (needClear) {
+            setNewData(new ArrayList<>(data));
+        } else {
+            addData(data);
+            if (isLoadMoreEnable()) {
+                loadMoreComplete();
             }
-            mData.addAll(data);
         }
-
-        notifyDataSetChanged();
     }
 
     public void update(List<? extends IModel> data) {

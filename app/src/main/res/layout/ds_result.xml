@@ -63,7 +63,7 @@
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
         android:background="@color/colorMain2"
-        android:src="@drawable/ic_taobao"
+        android:src="@drawable/ic_goto_top"
         android:visibility="invisible" />
 
 

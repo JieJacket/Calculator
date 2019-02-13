@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -14,19 +15,14 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainGoodsPagerAdapter;
-import com.jie.calculator.calculator.provider.GlideApp;
 import com.jie.calculator.calculator.ui.DSSearchActivity;
-import com.jie.calculator.calculator.util.SystemUtil;
+import com.jie.calculator.calculator.widget.ScrollIndicatorBehavior;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -76,13 +72,22 @@ public class DSMainFragment extends AbsFragment {
                 ActivityCompat.startActivity(getActivity(), new Intent(getActivity(), DSSearchActivity.class), options.toBundle());
             }
         });
-        FloatingActionButton ivIndicator = view.findViewById(R.id.iv_go_top);
-        ivIndicator.setOnClickListener(v -> {
+        FloatingActionButton fab = view.findViewById(R.id.iv_go_top);
+        fab.setOnClickListener(v -> {
             Fragment item = mainGoodsPagerAdapter.getItem(vpContent.getCurrentItem());
             if (item instanceof AbsFragment) {
                 ((AbsFragment) item).scrollTo(State.TOP);
             }
+            hiddenTopIndicator(fab);
         });
+    }
+
+    private void hiddenTopIndicator(FloatingActionButton fab) {
+        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+        CoordinatorLayout.Behavior behavior = layoutParams.getBehavior();
+        if (behavior instanceof ScrollIndicatorBehavior){
+            ((ScrollIndicatorBehavior) behavior).hide(fab);
+        }
     }
 
     private void fetchFavList() {
