@@ -37,8 +37,11 @@
     <string name="str_confirm">确认</string>
     <string name="str_home">首页</string>
     <string name="str_mine">我的</string>
+    <string name="str_featured">精选</string>
     <string name="str_login_with_taobao">淘宝登录</string>
     <string name="str_retry">重试</string>
     <string name="str_orders">我的订单</string>
     <string name="str_search">搜索</string>
+    <string name="str_linear_mode">列表模式</string>
+    <string name="str_grid_mode">网格模式</string>
 </resources>

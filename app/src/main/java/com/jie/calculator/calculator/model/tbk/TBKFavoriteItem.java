@@ -50,7 +50,10 @@ public class TBKFavoriteItem implements IModel {
         ImageView ivPict = holder.getView(R.id.iv_pict);
 
         limitImageSize(ivPict);
+        resizePictSize(ivPict);
+    }
 
+    protected void resizePictSize(ImageView ivPict) {
         GlideApp.with(ivPict.getContext())
                 .load(itemResp.getPict_url())
                 .placeholder(R.drawable.ic_place_holder)
@@ -66,7 +69,7 @@ public class TBKFavoriteItem implements IModel {
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (width > 0 ){
+                        if (width > 0) {
                             int w = resource.getIntrinsicWidth();
                             int h = resource.getIntrinsicHeight();
                             int height = (int) (h * width * 1.0f / w);
@@ -78,7 +81,7 @@ public class TBKFavoriteItem implements IModel {
                 .into(ivPict);
     }
 
-    private void limitImageSize(ImageView ivPict) {
+    protected void limitImageSize(ImageView ivPict) {
         if (width > 0) {
             resize(width, ivPict);
             return;

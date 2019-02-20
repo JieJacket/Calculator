@@ -10,6 +10,8 @@ import android.support.v4.app.Fragment;
  */
 public class MainPage {
 
+    private boolean isMainPage;
+
     private String title;
     @DrawableRes
     private int icon;
@@ -29,6 +31,14 @@ public class MainPage {
 
     public void setIcon(int icon) {
         this.icon = icon;
+    }
+
+    public boolean isMainPage() {
+        return isMainPage;
+    }
+
+    public void setMainPage(boolean mainPage) {
+        isMainPage = mainPage;
     }
 
     public Fragment getFragment() {

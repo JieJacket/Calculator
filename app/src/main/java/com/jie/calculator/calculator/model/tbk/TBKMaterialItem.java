@@ -16,7 +16,6 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.jal.calculator.store.ds.model.tbk.TBKFavoritesItemResp;
 import com.jal.calculator.store.ds.model.tbk.TBKMaterialsResp;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.IModel;
@@ -50,7 +49,10 @@ public class TBKMaterialItem implements IModel {
         ImageView ivPict = holder.getView(R.id.iv_pict);
 
         limitImageSize(ivPict);
+        resizePictSize(ivPict);
+    }
 
+    protected void resizePictSize(ImageView ivPict) {
         GlideApp.with(ivPict.getContext())
                 .load(itemResp.getPict_url())
                 .placeholder(R.drawable.ic_place_holder)
@@ -66,7 +68,7 @@ public class TBKMaterialItem implements IModel {
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (width > 0 ){
+                        if (width > 0) {
                             int w = resource.getIntrinsicWidth();
                             int h = resource.getIntrinsicHeight();
                             int height = (int) (h * width * 1.0f / w);
@@ -78,7 +80,7 @@ public class TBKMaterialItem implements IModel {
                 .into(ivPict);
     }
 
-    private void limitImageSize(ImageView ivPict) {
+    protected void limitImageSize(ImageView ivPict) {
         if (width > 0) {
             resize(width, ivPict);
             return;
@@ -101,7 +103,8 @@ public class TBKMaterialItem implements IModel {
         params.height = size;
     }
 
-    private void resize(int w, int h, View ivPict) {
+
+    protected void resize(int w, int h, View ivPict) {
         ViewGroup.LayoutParams params = ivPict.getLayoutParams();
         params.width = w;
         params.height = h;

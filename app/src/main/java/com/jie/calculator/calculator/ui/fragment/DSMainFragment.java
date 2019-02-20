@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -15,20 +13,22 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jal.calculator.store.ds.model.ali.TBKFavoriteListRequest;
 import com.jal.calculator.store.ds.util.Constants;
-import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainGoodsPagerAdapter;
 import com.jie.calculator.calculator.model.DSMainTab;
+import com.jie.calculator.calculator.model.rx.RxUpdatePageInfos;
+import com.jie.calculator.calculator.model.rx.RxUpdatePageStateEvent;
 import com.jie.calculator.calculator.ui.DSSearchActivity;
-import com.jie.calculator.calculator.widget.ScrollIndicatorBehavior;
+import com.jie.calculator.calculator.ui.view.MainTabsPopup;
+import com.jie.calculator.calculator.util.AppController;
+import com.jie.calculator.calculator.util.RxBus;
+import com.jie.calculator.calculator.widget.vp.ViewPagerHelper;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created on 2019/2/2.
@@ -42,6 +42,7 @@ public class DSMainFragment extends AbsFragment {
     private ViewPager vpContent;
     private TextView etSearch;
     private MainGoodsPagerAdapter mainGoodsPagerAdapter;
+    private ImageView ivSplit;
 
 
     @Nullable
@@ -55,14 +56,31 @@ public class DSMainFragment extends AbsFragment {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         loadTabs();
-        fetchFavList();
+//        fetchFavList();
+        disposables.add(RxBus.getIns().toObservable(RxUpdatePageStateEvent.class)
+                .subscribe(event -> {
+                            Fragment item = mainGoodsPagerAdapter.getItem(vpContent.getCurrentItem());
+                            if (item instanceof AbsFragment) {
+                                ((AbsFragment) item).scrollTo(event.state);
+                            }
+                        }
+                ));
     }
 
+
+    public void notify2Top() {
+        Fragment item = mainGoodsPagerAdapter.getItem(vpContent.getCurrentItem());
+        if (item instanceof AbsFragment) {
+            ((AbsFragment) item).scrollTo(State.TOP);
+        }
+    }
 
     private void initView(View view) {
         tlTabs = view.findViewById(R.id.tl_tabs);
         vpContent = view.findViewById(R.id.vp_content);
         etSearch = view.findViewById(R.id.et_top_search);
+        ivSplit = view.findViewById(R.id.iv_split);
+
         tlTabs.setupWithViewPager(vpContent);
         mainGoodsPagerAdapter = new MainGoodsPagerAdapter(getChildFragmentManager());
         vpContent.setAdapter(mainGoodsPagerAdapter);
@@ -75,22 +93,24 @@ public class DSMainFragment extends AbsFragment {
                 ActivityCompat.startActivity(getActivity(), new Intent(getActivity(), DSSearchActivity.class), options.toBundle());
             }
         });
-        FloatingActionButton fab = view.findViewById(R.id.iv_go_top);
-        fab.setOnClickListener(v -> {
-            Fragment item = mainGoodsPagerAdapter.getItem(vpContent.getCurrentItem());
-            if (item instanceof AbsFragment) {
-                ((AbsFragment) item).scrollTo(State.TOP);
-            }
-            hiddenTopIndicator(fab);
-        });
-    }
 
-    private void hiddenTopIndicator(FloatingActionButton fab) {
-        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-        CoordinatorLayout.Behavior behavior = layoutParams.getBehavior();
-        if (behavior instanceof ScrollIndicatorBehavior) {
-            ((ScrollIndicatorBehavior) behavior).hide(fab);
-        }
+        MainTabsPopup tabsPopup = new MainTabsPopup(getActivity());
+        ViewPagerHelper viewPagerHelper = new ViewPagerHelper(vpContent);
+        ivSplit.setOnClickListener(v -> {
+            tabsPopup.show(mainGoodsPagerAdapter.getData(), tlTabs);
+            tabsPopup.setOnItemClickListener((clickMore, tab, position) -> {
+                tabsPopup.dismiss();
+                if (clickMore) {
+                    int mode = (int) AppController.getInst().getBaseValue(AppController.KEY_OF_PAGE_LAYOUT, 0);
+                    mode = mode == AppController.MODE_GRID ? AppController.MODE_LINEAR : AppController.MODE_GRID;
+                    RxBus.getIns().post(RxUpdatePageInfos.create().listMode(mode));
+                    AppController.getInst().putValue(AppController.KEY_OF_PAGE_LAYOUT, mode);
+                } else {
+                    vpContent.setCurrentItem(mainGoodsPagerAdapter.getData().indexOf(tab), false);
+                    viewPagerHelper.setCurrentItem(mainGoodsPagerAdapter.getData().indexOf(tab), false);
+                }
+            });
+        });
     }
 
     private void loadTabs() {
@@ -98,18 +118,8 @@ public class DSMainFragment extends AbsFragment {
                 Observable.fromIterable(Constants.materials)
                         .map(mi -> DSMainTab.create(mi.name, MaterialFragment.newInstance(mi)))
                         .toList()
-                        .subscribe(data -> mainGoodsPagerAdapter.update(data),Throwable::printStackTrace)
+                        .subscribe(data -> mainGoodsPagerAdapter.update(data), Throwable::printStackTrace)
         );
-    }
-
-    private void fetchFavList() {
-        disposables.add(CTApplication.getRepository().getTBKFavoritesCategory(false, new TBKFavoriteListRequest())
-                .flatMap(Observable::fromIterable)
-                .map(resp -> DSMainTab.create(resp.getFavorites_title(),GoodsFragment.newInstance(resp.getFavorites_id())))
-                .toList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(data -> mainGoodsPagerAdapter.addNewTabs(data), Throwable::printStackTrace));
     }
 
 

@@ -74,7 +74,7 @@
                     android:background="?android:attr/selectableItemBackground"
                     android:padding="4dp"
                     android:src="@drawable/ic_close_black"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
             </RelativeLayout>
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>

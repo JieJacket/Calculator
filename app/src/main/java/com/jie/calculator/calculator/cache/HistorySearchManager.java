@@ -9,6 +9,8 @@ import io.reactivex.Observable;
 /**
  * Created on 2019/2/11.
  *
+ * 记录用户的搜索内容
+ *
  * @author Jie.Wu
  */
 public class HistorySearchManager {
@@ -43,7 +45,7 @@ public class HistorySearchManager {
     }
 
     public void save() {
-        executor.save();
+
     }
 
     public void setMaxSize(int size) {

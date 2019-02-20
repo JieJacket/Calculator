@@ -27,10 +27,8 @@ import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.adapter.RecycleViewDivider;
 import com.jie.calculator.calculator.model.IModel;
-import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
 import com.jie.calculator.calculator.model.tbk.TBKSearchItem;
 import com.jie.calculator.calculator.util.ActivityCacheManager;
-import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.SystemUtil;
 
 import java.util.ArrayList;
@@ -180,10 +178,10 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
 
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-        if (position - 2 < 0 || position > searchAdapter.getData().size()) {
+        if (position < 0 || position > searchAdapter.getData().size()) {
             return;
         }
-        IModel item = searchAdapter.getItem(position - 2);
+        IModel item = searchAdapter.getItem(position);
         if (item instanceof TBKSearchItem) {
             TBKSearchItem model = (TBKSearchItem) item;
             TBKSearchResp searchResp;
@@ -208,7 +206,6 @@ public class DSResultActivity extends BaseActivity implements BaseQuickAdapter.O
                     android.support.v4.util.Pair.create(tvSearch, getString(R.string.str_search_transition)));
             ActivityCompat.startActivity(this, new Intent(this, DSSearchActivity.class), options.toBundle());
         }
-        RxBus.getIns().post(new RxUpdateSuggestionEvent());
         super.onBackPressed();
     }
 }

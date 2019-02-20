@@ -11,6 +11,7 @@ import com.jie.calculator.calculator.util.EmptyObserver;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,7 +33,7 @@ public class RepositoryExecutor<T> {
     private boolean hasChanged;
     private int maxSize = 20;
 
-    void setMaxSize(int maxSize) {
+    public void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
     }
 
@@ -76,13 +77,15 @@ public class RepositoryExecutor<T> {
                 data.addAll(temp);
             }
             data.add(v);
+            autoAsyncSave();
         }
     }
 
-    public void remove(String t) {
+    public void remove(T t) {
         if (t != null && data.contains(t)) {
             hasChanged = true;
             data.remove(t);
+            autoAsyncSave();
         }
     }
 
@@ -93,16 +96,25 @@ public class RepositoryExecutor<T> {
                 .map(ArrayList::new);
     }
 
-    public void save() {
+    private void autoAsyncSave() {
         Observable.just(hasChanged)
                 .filter(status -> status)
-                .map(status -> data)
+                .map(status -> new LinkedHashSet<>(data))
                 .doOnNext(list -> {
                     String json = new Gson().toJson(list);
                     preferences.edit().putString(key, json).apply();
                 })
                 .subscribeOn(Schedulers.io())
                 .subscribe();
+    }
+
+    public void update(Collection<T> list) {
+        if (list != null && list.isEmpty()) {
+            hasChanged = true;
+            data.clear();
+            data.addAll(list);
+            autoAsyncSave();
+        }
     }
 
 

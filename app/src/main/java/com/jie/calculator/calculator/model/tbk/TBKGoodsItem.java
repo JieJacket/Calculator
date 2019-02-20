@@ -25,7 +25,7 @@ import com.jie.calculator.calculator.provider.GlideApp;
  */
 public class TBKGoodsItem implements IModel {
 
-    public static final int TYPE = 0x112;
+    public static final int TYPE = 0x114;
 
     private TBKFavoritesItemResp itemResp;
 
@@ -47,7 +47,10 @@ public class TBKGoodsItem implements IModel {
         ImageView ivPict = holder.getView(R.id.iv_pict);
 
         limitImageSize(ivPict);
+        resizePictSize(ivPict);
+    }
 
+    protected void resizePictSize(ImageView ivPict){
         GlideApp.with(ivPict.getContext())
                 .load(itemResp.getPict_url())
                 .placeholder(R.drawable.ic_place_holder)
@@ -58,7 +61,7 @@ public class TBKGoodsItem implements IModel {
                 .into(ivPict);
     }
 
-    private void limitImageSize(ImageView ivPict) {
+    protected void limitImageSize(ImageView ivPict) {
         if (size > 0) {
             resize(size, ivPict);
             return;

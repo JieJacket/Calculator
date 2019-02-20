@@ -78,5 +78,7 @@ public class MainGoodsPagerAdapter extends FragmentPagerAdapter {
         notifyDataSetChanged();
     }
 
-
+    public List<DSMainTab> getData() {
+        return data;
+    }
 }

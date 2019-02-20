@@ -8,6 +8,8 @@ import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.push.Analysis;
 import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.cache.Repository;
+import com.jie.calculator.calculator.clipboard.DSClipboardManager;
+import com.jie.calculator.calculator.clipboard.SearchBlacklistManager;
 import com.jie.calculator.calculator.push.UmengMessageHandlerWrapper;
 import com.jie.calculator.calculator.push.UmengNotificationClickHandler;
 import com.jie.calculator.calculator.util.CommonConstants;
@@ -20,13 +22,20 @@ import com.jie.calculator.calculator.util.CommonConstants;
 public class CTApplication extends Application {
 
     private static Repository repository;
+    private static CTApplication context;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        context = this;
         initDS();
         initPushSDK();
         initCacheUtils();
+        initClipboard();
+    }
+
+    public static Context getContext() {
+        return context;
     }
 
     private void initDS() {
@@ -45,6 +54,11 @@ public class CTApplication extends Application {
     private void initCacheUtils() {
         repository = Repository.init(getCacheDir());
         HistorySearchManager.getInst().init(this);
+    }
+
+    private void initClipboard() {
+        DSClipboardManager.getInst().init(this);
+        SearchBlacklistManager.getInst().init(this);
     }
 
     public static Repository getRepository() {

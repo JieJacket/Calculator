@@ -46,5 +46,10 @@ public interface AliServer {
     @FormUrlEncoded
     Observable<TBKBaseResp<TBKMaterialsResp>> searchMaterial(@FieldMap Map<String, String> request);
 
+    @Headers({"Content-Type:application/x-www-form-urlencoded;charset=utf-8"})
+    @POST("rest")
+    @FormUrlEncoded
+    Observable<TBKBaseResp<TBKMaterialsResp>> tpwdParse(@FieldMap Map<String, String> request);
+
 
 }

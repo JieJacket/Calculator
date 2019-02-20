@@ -8,8 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        app:elevation="0dp"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
@@ -46,7 +46,28 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include layout="@layout/tab_layout" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize">
+
+                <ImageView
+                    android:id="@+id/iv_split"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_more_vert" />
+
+                <include
+                    layout="@layout/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@+id/iv_split"
+                    android:layout_toLeftOf="@+id/iv_split" />
+
+            </RelativeLayout>
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/vp_content"
@@ -58,17 +79,5 @@
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/iv_go_top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="18dp"
-        android:layout_marginRight="18dp"
-        android:layout_marginBottom="18dp"
-        android:src="@drawable/ic_goto_top"
-        android:visibility="visible"
-        app:layout_behavior="com.jie.calculator.calculator.widget.ScrollIndicatorBehavior" />
 
 </android.support.design.widget.CoordinatorLayout>

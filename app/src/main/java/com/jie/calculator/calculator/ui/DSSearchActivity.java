@@ -27,8 +27,6 @@ import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.DSSearchItem;
 import com.jie.calculator.calculator.model.IModel;
-import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
-import com.jie.calculator.calculator.util.RxBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,8 +55,6 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
         initSearchEdit();
         initOthers();
         showSuggestions();
-        disposables.add(RxBus.getIns().toObservable(RxUpdateSuggestionEvent.class)
-                .subscribe(event -> showSuggestions()));
     }
 
     @Override
@@ -111,12 +107,13 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     }
 
     private void requestFocus() {
-        etSearch.clearFocus();
-        etSearch.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
-        }
+        etSearch.postDelayed(() -> {
+            etSearch.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
+            }
+        },200);
     }
 
     private void goSearch(String query) {
@@ -153,7 +150,6 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     }
 
     private void showSuggestions() {
-        requestFocus();
         disposables.add(HistorySearchManager.getInst().getData()
                 .flatMap(data -> {
                     if (!data.isEmpty()) {
@@ -169,6 +165,8 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
                     rvSuggestions.setVisibility(View.VISIBLE);
                     suggestionAdapter.update(data);
                 }, Throwable::printStackTrace));
+
+        requestFocus();
     }
 
     @Override
