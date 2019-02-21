@@ -2,6 +2,7 @@ package com.jie.calculator.calculator.ui.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -74,6 +75,7 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
 
     private int listMode = 0;
     private View headerView;
+    private ArrayList<BannerItem> bannerData;
 
     public static MaterialFragment newInstance(MaterialInfo info) {
         MaterialFragment goodsFragment = new MaterialFragment();
@@ -153,6 +155,19 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
     }
 
     private void initBanner() {
+        headerView = getLayoutInflater().inflate(R.layout.banner_container, rvGoods, false);
+        bannerView = headerView.findViewById(R.id.bv_indicator);
+        bannerView.setBannerPageClickListener((view, i) -> {
+            if (bannerData != null && i < bannerData.size() && i >= 0){
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("https://market.m.taobao.com/apps/abs/10/461/1d0b6c?spm=a21bo.2017.201862-1.d1.5af911d93Uxlam&pos=1&_wvUseWKWebView=YES&psId=2118072&acm=20140506001.1003.2.5335464&scm=1003.2.20140506001.OTHER_1551801690067_5335464"));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         disposables.add(
                 Observable.just(new ArrayList<>(Arrays.asList(
                         new BannerItem("https://img.alicdn.com/tfs/TB13FxJHrPpK1RjSZFFXXa5PpXa-520-280.jpg_q90_.webp"),
@@ -162,8 +177,7 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(data -> {
-                            headerView = getLayoutInflater().inflate(R.layout.banner_container, rvGoods, false);
-                            bannerView = headerView.findViewById(R.id.bv_indicator);
+                            this.bannerData = data;
                             viewAdapter.addHeaderView(headerView);
                             bannerView.setPages(data,BannerViewHolder::new);
                             bannerView.start();
