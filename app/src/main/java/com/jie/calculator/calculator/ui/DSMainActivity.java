@@ -7,7 +7,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,13 +15,11 @@ import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.MainContentAdapter;
 import com.jie.calculator.calculator.clipboard.DSClipboardManager;
 import com.jie.calculator.calculator.model.MainPage;
-import com.jie.calculator.calculator.model.rx.RxUpdatePageInfos;
 import com.jie.calculator.calculator.model.rx.RxUpdateSuggestionEvent;
 import com.jie.calculator.calculator.model.rx.RxUpdateTabEvent;
 import com.jie.calculator.calculator.ui.fragment.DSMainFragment;
 import com.jie.calculator.calculator.ui.fragment.FeaturedFragment;
 import com.jie.calculator.calculator.ui.fragment.MineFragment;
-import com.jie.calculator.calculator.util.AppController;
 import com.jie.calculator.calculator.util.RxBus;
 import com.jie.calculator.calculator.util.UpdateUtils;
 import com.jie.calculator.calculator.widget.CustomTabView;
@@ -105,6 +102,7 @@ public class DSMainActivity extends BaseActivity {
         vpMain = findViewById(R.id.vp_main_content);
         contentAdapter = new MainContentAdapter(getSupportFragmentManager(), pages);
         vpMain.setAdapter(contentAdapter);
+        vpMain.setOffscreenPageLimit(3);
         Observable.fromIterable(pages)
                 .map(page -> {
                     TabLayout.Tab tab = tlBottomTabs.newTab();

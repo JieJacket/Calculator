@@ -44,7 +44,6 @@ public class DSMainFragment extends AbsFragment {
     private MainGoodsPagerAdapter mainGoodsPagerAdapter;
     private ImageView ivSplit;
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -111,6 +110,7 @@ public class DSMainFragment extends AbsFragment {
                 }
             });
         });
+
     }
 
     private void loadTabs() {
@@ -122,5 +122,13 @@ public class DSMainFragment extends AbsFragment {
         );
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 }

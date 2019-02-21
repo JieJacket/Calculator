@@ -1,13 +1,14 @@
 package com.jie.calculator.calculator.model.tbk;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -20,6 +21,8 @@ import com.jal.calculator.store.ds.model.tbk.TBKMaterialsResp;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.provider.GlideApp;
+
+import java.math.BigDecimal;
 
 /**
  * Created on 2019/1/25.
@@ -41,15 +44,23 @@ public class TBKMaterialItem implements IModel {
     @Override
     public void convert(BaseViewHolder holder) {
         holder.addOnClickListener(R.id.cv_container);
+        Context context = holder.itemView.getContext();
         holder.setText(R.id.tv_title, itemResp.getTitle());
-        holder.setText(R.id.tv_volume, String.valueOf(itemResp.getVolume()));
-        holder.setText(R.id.tv_coupon, String.valueOf(itemResp.getCoupon_amount()));
-        TextView finalPrice = holder.getView(R.id.tv_final_price);
-        finalPrice.setText(itemResp.getZk_final_price());
+        holder.setText(R.id.tv_volume, context.getString(R.string.str_volume_format, itemResp.getVolume()));
+        String couponAmount = itemResp.getCoupon_amount();
+        holder.setText(R.id.tv_coupon, context.getString(R.string.str_volume_amount_format, couponAmount));
+        holder.setText(R.id.tv_final_price, context.getString(R.string.str_now_price, itemResp.getZk_final_price()));
+        holder.setText(R.id.tv_after_price, context.getString(R.string.str_final_price, getFinalAmount(couponAmount, itemResp.getZk_final_price())));
         ImageView ivPict = holder.getView(R.id.iv_pict);
 
         limitImageSize(ivPict);
         resizePictSize(ivPict);
+    }
+
+    private String getFinalAmount(String couponAmount, String price) {
+        BigDecimal decimal = new BigDecimal(price).subtract(new BigDecimal(couponAmount));
+        decimal = decimal.setScale(2, BigDecimal.ROUND_DOWN);
+        return decimal.stripTrailingZeros().toPlainString();
     }
 
     protected void resizePictSize(ImageView ivPict) {

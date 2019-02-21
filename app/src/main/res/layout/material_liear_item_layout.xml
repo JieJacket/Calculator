@@ -5,31 +5,32 @@
     android:id="@+id/cv_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    android:layout_marginBottom="8dp"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="4dp">
+    app:cardCornerRadius="4dp"
+    app:cardElevation="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/iv_pict"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_place_holder" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/iv_pict"
             android:layout_alignBottom="@+id/iv_pict"
             android:layout_toEndOf="@+id/iv_pict"
             android:layout_toRightOf="@+id/iv_pict"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -37,35 +38,101 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 tools:text="高级感za小包包女2018新款韩版ra时尚女包洋气百搭宽带单肩斜挎包高级感za小包包女2018新款韩版ra时尚女包洋气百搭宽带单肩斜挎包" />
 
-            <TextView
-                android:id="@+id/tv_coupon"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                tools:text="123" />
+                android:layout_alignParentBottom="true"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_final_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                tools:text="124" />
 
-            <TextView
-                android:id="@+id/tv_volume"
+                <TextView
+                    android:id="@+id/tv_final_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:textSize="14sp"
+                    tools:text="现价 ￥124" />
+
+                <LinearLayout
+                    android:id="@+id/ll_coupon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_coupon_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/coupon_bg"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        tools:text="用券后" />
+
+                    <TextView
+                        android:id="@+id/tv_after_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:text="￥60" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                tools:text="100" />
-        </LinearLayout>
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_volume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    tools:text="月售100" />
+
+                <TextView
+                    android:id="@+id/tv_coupon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/coupon_bg"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:textColor="@android:color/white"
+                    tools:text="40元券" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="136dp"
+        android:layout_marginLeft="136dp"
+        android:background="#999999"
+        android:foreground="#999999" />
 
 </android.support.v7.widget.CardView>

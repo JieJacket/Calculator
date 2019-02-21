@@ -6,32 +6,36 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:fitsSystemWindows="true"
-        app:elevation="0dp">
+        android:layout_height="wrap_content">
 
-        <android.support.design.widget.CollapsingToolbarLayout
+        <TextView
+            android:id="@+id/et_top_search"
+            style="@style/Main_Search_Edit"
+            android:hint="@string/str_search_hint" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:contentScrim="@color/colorMain2">
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_gravity="bottom">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/iv_split"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:orientation="vertical"
-                app:layout_collapseMode="pin">
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:padding="4dp"
+                android:src="@drawable/ic_more_vert" />
 
-                <TextView
-                    android:id="@+id/et_top_search"
-                    style="@style/Main_Search_Edit"
-                    android:hint="@string/str_search_hint" />
+            <include
+                layout="@layout/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toStartOf="@+id/iv_split"
+                android:layout_toLeftOf="@+id/iv_split" />
 
-            </LinearLayout>
-        </android.support.design.widget.CollapsingToolbarLayout>
-
+        </RelativeLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -41,42 +45,11 @@
         android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <android.support.v4.view.ViewPager
+            android:id="@+id/vp_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize">
-
-                <ImageView
-                    android:id="@+id/iv_split"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:padding="4dp"
-                    android:src="@drawable/ic_more_vert" />
-
-                <include
-                    layout="@layout/tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/iv_split"
-                    android:layout_toLeftOf="@+id/iv_split" />
-
-            </RelativeLayout>
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/vp_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
-        </LinearLayout>
+            android:layout_marginTop="8dp" />
 
     </android.support.v4.widget.NestedScrollView>
 

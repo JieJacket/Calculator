@@ -129,12 +129,10 @@ public class MainTabsPopup implements BaseQuickAdapter.OnItemChildClickListener 
             view.getLocationOnScreen(location);
             int x = location[0];
             int y = location[1];
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                int screenHeight = SystemUtil.getScreenHeight(view.getContext());
-                int tempHeight = popupWindow.getHeight();
-                if (tempHeight == WindowManager.LayoutParams.MATCH_PARENT || screenHeight <= tempHeight) {
-                    popupWindow.setHeight(screenHeight - location[1] - view.getHeight());
-                }
+            int screenHeight = SystemUtil.getScreenHeight(view.getContext());
+            int tempHeight = popupWindow.getHeight();
+            if (tempHeight == WindowManager.LayoutParams.MATCH_PARENT || screenHeight <= tempHeight) {
+                popupWindow.setHeight(screenHeight - location[1] - view.getHeight());
             }
             popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, x, y + view.getHeight());
         }

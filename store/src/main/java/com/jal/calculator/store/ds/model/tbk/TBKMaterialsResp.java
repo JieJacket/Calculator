@@ -9,7 +9,7 @@ public class TBKMaterialsResp {
 
     private String click_url;
     private String commission_rate;
-    private int coupon_amount;
+    private String coupon_amount;
     private String coupon_click_url;
     private String coupon_end_time;
     private String coupon_start_fee;
@@ -43,11 +43,11 @@ public class TBKMaterialsResp {
         this.commission_rate = commission_rate;
     }
 
-    public int getCoupon_amount() {
+    public String getCoupon_amount() {
         return coupon_amount;
     }
 
-    public void setCoupon_amount(int coupon_amount) {
+    public void setCoupon_amount(String coupon_amount) {
         this.coupon_amount = coupon_amount;
     }
 

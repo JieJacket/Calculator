@@ -44,4 +44,9 @@
     <string name="str_search">搜索</string>
     <string name="str_linear_mode">列表模式</string>
     <string name="str_grid_mode">网格模式</string>
+    <string name="str_volume_format">月售%d</string>
+    <string name="str_volume_amount_format">%s元券</string>
+    <string name="str_coupon_label">用券后</string>
+    <string name="str_final_price">￥%s</string>
+    <string name="str_now_price">现价￥%s</string>
 </resources>

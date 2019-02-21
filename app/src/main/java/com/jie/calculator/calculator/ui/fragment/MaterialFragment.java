@@ -1,5 +1,6 @@
 package com.jie.calculator.calculator.ui.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,12 +9,17 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jal.calculator.store.ds.DSManager;
 import com.jal.calculator.store.ds.model.MaterialInfo;
@@ -22,15 +28,21 @@ import com.jal.calculator.store.ds.util.ConvertUtil;
 import com.jie.calculator.calculator.CTApplication;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
+import com.jie.calculator.calculator.model.BannerItem;
 import com.jie.calculator.calculator.model.IModel;
 import com.jie.calculator.calculator.model.rx.RxUpdatePageInfos;
 import com.jie.calculator.calculator.model.rx.RxUpdateTabEvent;
 import com.jie.calculator.calculator.model.tbk.MainStyleFactory;
 import com.jie.calculator.calculator.model.tbk.TBKMaterialItem;
 import com.jie.calculator.calculator.model.tbk.TBKMaterialLinearItem;
+import com.jie.calculator.calculator.provider.GlideApp;
 import com.jie.calculator.calculator.util.AppController;
 import com.jie.calculator.calculator.util.RxBus;
+import com.jie.calculator.calculator.util.SystemUtil;
 import com.jie.calculator.calculator.widget.MateialDesignLoadMoreView;
+import com.jie.calculator.calculator.widget.vp.BannerViewHolder;
+import com.zhouwei.mzbanner.MZBannerView;
+import com.zhouwei.mzbanner.holder.MZViewHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,10 +68,12 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
     private MaterialInfo materialInfo;
     private CommonRecyclerViewAdapter viewAdapter;
     private RecyclerView.LayoutManager goodsLayoutManager;
+    private MZBannerView<BannerItem> bannerView;
 
     private static final int DEFAULT_LOAD_SIZE = 20;
 
     private int listMode = 0;
+    private View headerView;
 
     public static MaterialFragment newInstance(MaterialInfo info) {
         MaterialFragment goodsFragment = new MaterialFragment();
@@ -95,6 +109,7 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
         initLayoutManager();
         initContent(view);
         fetchFavoriteItem(true);
+        initBanner();
     }
 
     private void initLayoutManager() {
@@ -102,7 +117,7 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
         if (listMode == AppController.MODE_LINEAR) {
             goodsLayoutManager = new LinearLayoutManager(getContext());
         } else if (listMode == AppController.MODE_GRID) {
-            goodsLayoutManager = new GridLayoutManager(getContext(), 2);
+            goodsLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         }
     }
 
@@ -134,8 +149,29 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
                 RxBus.getIns().post(event);
             }
         });
+
     }
 
+    private void initBanner() {
+        disposables.add(
+                Observable.just(new ArrayList<>(Arrays.asList(
+                        new BannerItem("https://img.alicdn.com/tfs/TB13FxJHrPpK1RjSZFFXXa5PpXa-520-280.jpg_q90_.webp"),
+                        new BannerItem("https://img.alicdn.com/simba/img/TB1uzA9HkPoK1RjSZKbSut1IXXa.jpg"),
+                        new BannerItem("https://img.alicdn.com/simba/img/TB1uzA9HkPoK1RjSZKbSut1IXXa.jpg"),
+                        new BannerItem("https://img.alicdn.com/simba/img/TB1FKbrdsjI8KJjSsppSutbyVXa.jpg"))))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(data -> {
+                            headerView = getLayoutInflater().inflate(R.layout.banner_container, rvGoods, false);
+                            bannerView = headerView.findViewById(R.id.bv_indicator);
+                            viewAdapter.addHeaderView(headerView);
+                            bannerView.setPages(data,BannerViewHolder::new);
+                            bannerView.start();
+                            goodsLayoutManager.scrollToPosition(0);
+                        })
+        );
+
+    }
 
     private void fetchFavoriteItem(boolean isRefresh) {
         disposables.add(Observable.just(new TBKMaterialRequest())
@@ -175,11 +211,14 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
             return;
         }
         this.listMode = listMode;
+        if (headerView != null){
+            viewAdapter.removeHeaderView(headerView);
+        }
         if (listMode == AppController.MODE_LINEAR) {
             goodsLayoutManager = new LinearLayoutManager(getContext());
             rvGoods.setLayoutManager(goodsLayoutManager);
         } else if (listMode == AppController.MODE_GRID) {
-            goodsLayoutManager = new GridLayoutManager(getContext(), 2);
+            goodsLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
             rvGoods.setLayoutManager(goodsLayoutManager);
         }
 
@@ -190,7 +229,10 @@ public class MaterialFragment extends AbsFragment implements BaseQuickAdapter.On
                 .map(resp -> MainStyleFactory.newItem(listMode, resp))
                 .toList()
                 .toObservable()
-                .subscribe(data -> viewAdapter.update(data, true),
+                .subscribe(data -> {
+                            viewAdapter.update(data, true);
+                            initBanner();
+                        },
                         t -> {
                             t.printStackTrace();
                             Snackbar.make(rvGoods, "Something error", Snackbar.LENGTH_SHORT).show();

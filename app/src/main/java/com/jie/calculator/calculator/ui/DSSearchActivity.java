@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -22,18 +23,24 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
+import com.jal.calculator.store.ds.model.ali.TBKSearchRequest;
+import com.jal.calculator.store.ds.network.AliServerManager;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.DSSearchItem;
 import com.jie.calculator.calculator.model.IModel;
+import com.jie.calculator.calculator.model.SearchSuggestionItem;
+import com.jie.calculator.calculator.util.EmptyWrapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created on 2019/1/31.
@@ -44,17 +51,32 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
         BaseQuickAdapter.OnItemChildLongClickListener {
 
     private EditText etSearch;
-    private RecyclerView rvSuggestions;
-    private CommonRecyclerViewAdapter suggestionAdapter;
+    private RecyclerView rvSuggestions, rvSearchSuggestions;
+    private CommonRecyclerViewAdapter suggestionAdapter, searchSuggestionAdapter;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ds_search);
+        initSearchSuggestions();
         initSearchEdit();
         initOthers();
         showSuggestions();
+    }
+
+    private void initSearchSuggestions() {
+        rvSearchSuggestions = findViewById(R.id.rv_search_suggestions);
+        rvSearchSuggestions.setLayoutManager(new LinearLayoutManager(this));
+        searchSuggestionAdapter = new CommonRecyclerViewAdapter(new ArrayList<>()) {
+            @NonNull
+            @Override
+            protected List<Pair<Integer, Integer>> bindItemTypes() {
+                return Collections.singletonList(Pair.create(SearchSuggestionItem.TYPE, R.layout.search_suggestion_item));
+            }
+        };
+        rvSearchSuggestions.setAdapter(searchSuggestionAdapter);
+        searchSuggestionAdapter.setOnItemChildClickListener(this);
     }
 
     @Override
@@ -99,11 +121,53 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
             public void afterTextChanged(Editable s) {
                 etSearch.setError(null);
                 ivClear.setVisibility(s == null || TextUtils.isEmpty(s.toString()) ? View.GONE : View.VISIBLE);
+                searchSuggestions(s == null || TextUtils.isEmpty(s.toString()) ? null : s.toString());
             }
         });
         findViewById(R.id.tv_search).setOnClickListener(v -> {
             goSearch(etSearch.getText().toString());
         });
+    }
+
+    private void searchSuggestions(String search) {
+        disposables.add(
+                Observable.just(new EmptyWrapper<>(search))
+                        .flatMap(ew -> {
+                            if (ew.isNonNull()) {
+                                return Observable.just(ew.getValue());
+                            } else {
+                                return Observable.error(new NullPointerException("Search is null"));
+                            }
+                        })
+                        .debounce(200, TimeUnit.MILLISECONDS)
+                        .map(q -> {
+                            TBKSearchRequest request = new TBKSearchRequest();
+                            request.setQ(q);
+                            request.setPageNo(1);
+                            request.setPageSize(8);
+                            request.setSort("total_sales");
+                            return request.signRequest();
+                        })
+                        .flatMap(params -> AliServerManager.getInst().getServer().searchGoods(params))
+                        .flatMap(resp -> {
+                            if (resp != null && resp.getResultList() != null) {
+                                return Observable.fromIterable(resp.getResultList());
+                            }
+                            return Observable.empty();
+                        })
+                        .map(result -> new SearchSuggestionItem(result.getShort_title(), search))
+                        .toList()
+                        .toObservable()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(data -> {
+                            searchSuggestionAdapter.update(data);
+                            rvSearchSuggestions.setVisibility(View.VISIBLE);
+                        }, t -> {
+                            rvSearchSuggestions.setVisibility(View.GONE);
+                            t.printStackTrace();
+                        })
+        );
     }
 
     private void requestFocus() {
@@ -113,7 +177,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
             if (imm != null) {
                 imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
             }
-        },200);
+        }, 200);
     }
 
     private void goSearch(String query) {
@@ -171,11 +235,20 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
 
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-        IModel item = suggestionAdapter.getItem(position);
+        Object item = adapter.getItem(position);
         if (item instanceof DSSearchItem) {
             String query = ((DSSearchItem) item).getData();
             etSearch.setText(query);
             etSearch.setSelection(query.length());
+            goSearch(query);
+        } else if (item instanceof SearchSuggestionItem) {
+            String query = ((SearchSuggestionItem) item).getResult();
+            if (!TextUtils.isEmpty(query)) {
+                HistorySearchManager.getInst().put(query);
+            }
+            etSearch.setText(query);
+            etSearch.setSelection(query.length());
+            rvSearchSuggestions.setVisibility(View.GONE);
             goSearch(query);
         }
     }
