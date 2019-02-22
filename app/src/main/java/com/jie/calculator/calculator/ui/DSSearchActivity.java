@@ -23,15 +23,15 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
-import com.jal.calculator.store.ds.model.ali.TBKSearchRequest;
-import com.jal.calculator.store.ds.network.AliServerManager;
 import com.jie.calculator.calculator.R;
 import com.jie.calculator.calculator.adapter.CommonRecyclerViewAdapter;
 import com.jie.calculator.calculator.cache.HistorySearchManager;
 import com.jie.calculator.calculator.model.DSSearchItem;
 import com.jie.calculator.calculator.model.IModel;
+import com.jie.calculator.calculator.model.QueryInfo;
 import com.jie.calculator.calculator.model.SearchSuggestionItem;
 import com.jie.calculator.calculator.util.EmptyWrapper;
+import com.jie.calculator.calculator.util.QueryApis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +53,7 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
     private EditText etSearch;
     private RecyclerView rvSuggestions, rvSearchSuggestions;
     private CommonRecyclerViewAdapter suggestionAdapter, searchSuggestionAdapter;
+    private String blackSearch;
 
 
     @Override
@@ -124,43 +125,32 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
                 searchSuggestions(s == null || TextUtils.isEmpty(s.toString()) ? null : s.toString());
             }
         });
-        findViewById(R.id.tv_search).setOnClickListener(v -> {
-            goSearch(etSearch.getText().toString());
-        });
+        findViewById(R.id.tv_search).setOnClickListener(v -> goSearch(etSearch.getText().toString()));
     }
 
     private void searchSuggestions(String search) {
         disposables.add(
                 Observable.just(new EmptyWrapper<>(search))
-                        .flatMap(ew -> {
-                            if (ew.isNonNull()) {
-                                return Observable.just(ew.getValue());
-                            } else {
-                                return Observable.error(new NullPointerException("Search is null"));
-                            }
-                        })
                         .debounce(200, TimeUnit.MILLISECONDS)
-                        .map(q -> {
-                            TBKSearchRequest request = new TBKSearchRequest();
-                            request.setQ(q);
-                            request.setPageNo(1);
-                            request.setPageSize(8);
-                            request.setSort("total_sales");
-                            return request.signRequest();
-                        })
-                        .flatMap(params -> AliServerManager.getInst().getServer().searchGoods(params))
+                        .filter(EmptyWrapper::isNonNull)
+                        .map(EmptyWrapper::getValue)
+                        .filter(s -> !TextUtils.equals(blackSearch, s))
+                        .flatMap(q -> QueryApis.getInst().query(q, QueryInfo.class))
                         .flatMap(resp -> {
-                            if (resp != null && resp.getResultList() != null) {
-                                return Observable.fromIterable(resp.getResultList());
+                            List<List<String>> result;
+                            if (resp != null && (result = resp.getResult()) != null) {
+                                return Observable.fromIterable(result);
                             }
                             return Observable.empty();
                         })
-                        .map(result -> new SearchSuggestionItem(result.getShort_title(), search))
+                        .filter(s -> s != null && !s.isEmpty() && !TextUtils.isEmpty(s.get(0)))
+                        .map(result -> new SearchSuggestionItem(result.get(0), search.trim()))
                         .toList()
                         .toObservable()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(data -> {
+                            this.blackSearch = search;
                             searchSuggestionAdapter.update(data);
                             rvSearchSuggestions.setVisibility(View.VISIBLE);
                         }, t -> {
@@ -248,8 +238,8 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
             }
             etSearch.setText(query);
             etSearch.setSelection(query.length());
-            rvSearchSuggestions.setVisibility(View.GONE);
             goSearch(query);
+            showSuggestions();
         }
     }
 
@@ -282,7 +272,11 @@ public class DSSearchActivity extends BaseActivity implements BaseQuickAdapter.O
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (rvSearchSuggestions.getVisibility() == View.VISIBLE) {
+            rvSearchSuggestions.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 }

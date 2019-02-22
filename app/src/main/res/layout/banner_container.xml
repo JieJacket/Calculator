@@ -7,7 +7,7 @@
 
     <com.jie.calculator.calculator.widget.ArcView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="72dp"
         android:layout_gravity="bottom" />
 
     <com.zhouwei.mzbanner.MZBannerView xmlns:app="http://schemas.android.com/apk/res-auto"
